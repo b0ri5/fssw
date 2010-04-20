@@ -1,6 +1,7 @@
 #include <fssw/MapPermutation.h>
 
-element_t get_image(element_t a)
+int get_image(int a)
 {
     return 0;
 }
+
