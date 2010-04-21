@@ -9,8 +9,10 @@
 #include <fssw/Permutation.h>
 
 #include <map>
+#include <string>
 
 using std::map;
+using std::string;
 
 namespace fssw {
 
@@ -24,10 +26,12 @@ class MapPermutation : public Permutation {
   element_t get_image(element_t a);
   void compose(const Permutation &g);
 
+  string input_string(string &s);
+
  private:
-     map<int, int> images_;
+  map<int, int> images_;
 };
 
 }  // namespace fssw
 
-#endif  // INCLUDE_FSSW_PERMUTATION_H_
+#endif  // INCLUDE_FSSW_MAPPERMUTATION_H_

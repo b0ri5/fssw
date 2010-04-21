@@ -1,7 +1,20 @@
 #include <fssw/MapPermutation.h>
 
-int get_image(int a)
+namespace fssw {
+
+int MapPermutation::get_image(int a)
 {
-    return 0;
+  if (images_.find(a) == images_.end() )
+  {
+      return a;
+  }
+
+  return images_[a];
 }
 
+void compose(const Permutation &g)
+{
+
+}
+
+}  // namespace fssw
