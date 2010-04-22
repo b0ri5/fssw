@@ -18,12 +18,17 @@ def main():
   
   dir = os.path.dirname(__file__)
   
+  # run the tests ending in "-db"
   if options.debug:
     for f in os.listdir(os.path.join(dir, 'test') ):
+      if f.endswith('-db'):
+        os.system(os.path.join(dir, 'test', f) )
+  
+  # run the tests not ending with "-db"
+  if options.release:
+    for f in os.listdir(os.path.join(dir, 'test') ):
       if not f.endswith('-db'):
-        continue
-      
-      os.system(os.path.join(dir, 'test', f) )
+        os.system(os.path.join(dir, 'test', f) )
       
 if __name__ == "__main__":
   main()
