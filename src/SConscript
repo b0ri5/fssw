@@ -6,15 +6,17 @@ Import('*')
 env.AppendUnique(CPPPATH = ['#include'] )
 
 # get a list of source files
-srcs = set()
+fssw_srcs = set()
 
 for f in env.Glob('*.cc'):
 	path, file = os.path.split(str(f) )
-	srcs.add(file)
+	fssw_srcs.add(file)
 
 # compile them into object files
-objs = env.Object(list(srcs) )
+fssw_objs = env.Object(list(fssw_srcs) )
 
 libfssw_name = 'fssw%s' % (libsuffix)
-lib = env.StaticLibrary('#/lib/%s' % (libfssw_name), [objs] )
-env.Alias('lib' + libfssw_name, lib)
+fssw_lib = env.StaticLibrary('#/lib/%s' % (libfssw_name), [fssw_objs] )
+env.Alias('lib' + libfssw_name, fssw_lib)
+
+Export('libfssw_name', 'fssw_lib')

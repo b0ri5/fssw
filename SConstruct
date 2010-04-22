@@ -19,16 +19,25 @@ env = Environment(tools = ['default', 'packaging', 'boris_scons_tools'])
 # tell the sconscripts about the timing environment 
 # Export('hrtime_env')
 
+conf = Configure(env)
+
+env = conf.Finish()
+
 debug_env = checks.config_debug(env)
 release_env = checks.config_release(env) 
 profile_env = checks.config_profile(env)
 
 Export({'env': debug_env, 'libsuffix': '-db'})
 debug_env.SConscript('src/SConscript',
-					build_dir='build/debug', duplicate=0)
+					build_dir='build/debug/src', duplicate=0)
 
-#debug_env.SConscript('test/SConscript',
-#					build_dir='build/test/debug', duplicate=0)
+conf = Configure(debug_env)
+
+if conf.CheckLibWithHeader('gtest', 'gtest/gtest.h', 'C++'):
+	debug_env.SConscript('test/SConscript',
+					build_dir='build/debug/test', duplicate=0)
+	
+env = conf.Finish()
 
 #Export({'env': release_env, 'libsuffix': ''})
 #release_env.SConscript('src/SConscript', build_dir='build/release', duplicate=0)

@@ -12,7 +12,7 @@ int MapPermutation::get_image(int a)
   return images_[a];
 }
 
-void compose(const Permutation &g)
+void MapPermutation::compose(const Permutation &g)
 {
 
 }

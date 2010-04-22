@@ -1,0 +1,26 @@
+import os
+
+Import('*')
+
+# get a list of source files
+unittest_src = set()
+
+for f in env.Glob('*.cc'):
+  path, file = os.path.split(str(f) )
+  name, ext = os.path.splitext(file)
+  unittest = env.Program(file,
+						  LIBPATH = ['#/lib'],
+						  LIBS = [libfssw_name, 'gtest', 'gtest_main'])
+  unittest_name = '%s%s' % (name, libsuffix)
+  env.Depends(unittest, fssw_lib)
+  env.InstallAs(target = '#/bin/test/%s' % (unittest_name),
+							  source = unittest )
+  
+#unittests_name = 'NisheUnittests%s' % (libsuffix)
+#unittests = env.Program('bin/%s' % (unittests_name),
+#      unittest_objs,
+#      LIBPATH = ['#/lib'], LIBS = [libnishe_name, 'gtest', 'gtest_main'])
+
+#env.Depends(unittests, nishe_lib)
+#env.InstallAs(target = '#/bin/%s' % (unittests_name),
+#    source = unittests)
