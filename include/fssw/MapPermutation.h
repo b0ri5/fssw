@@ -17,8 +17,8 @@ using std::string;
 namespace fssw {
 
 /*
- * The base permutation object. It only needs to know what an element
- * is mapped to and how to compose itself with another permutation.
+ * This is an implementation of Permutation which only stores
+ * the mapping for where elements move.
  */
 
 class MapPermutation : public Permutation {

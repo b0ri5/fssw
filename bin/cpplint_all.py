@@ -19,6 +19,7 @@ def main():
            '--filter=-runtime/virtual',
            os.path.join(root, src_dir, src_file) )
         os.system(cmd)
+        # TODO: supress output of files for which no errors are found
       
 if __name__ == "__main__":
   main()
