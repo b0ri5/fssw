@@ -2,7 +2,7 @@
 #define INCLUDE_FSSW_MAPPERMUTATION_H_
 
 /*
-    Copyright 2010 Greg Tener
+    Copyright 2010 Greg Tener and Elena Erbiceanu
     Released under the Lesser General Public License v3.
 */
 
@@ -23,13 +23,15 @@ namespace fssw {
 
 class MapPermutation : public Permutation {
  public:
-  element_t get_image(element_t a);
+  int get_image(int a);
+  int get_inverse_image(int a);
   void compose(const Permutation &g);
 
-  string input_string(string &s);
+  string input_string(string s);
 
  private:
   map<int, int> images_;
+  map<int, int> inverse_images_;
 };
 
 }  // namespace fssw
