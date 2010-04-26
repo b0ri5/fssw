@@ -1,5 +1,5 @@
-#ifndef INCLUDE_FSSW_PERMUTATION_H_
-#define INCLUDE_FSSW_PERMUTATION_H_
+#ifndef INCLUDE_FSSW_PERMUTATIONWORD_H_
+#define INCLUDE_FSSW_PERMUTATIONWORD_H_
 
 /*
     Copyright 2010 Greg Tener and Elena Erbiceanu
@@ -13,13 +13,13 @@ namespace fssw {
  * is mapped to and how to compose itself with another permutation.
  */
 
-class Permutation {
+class PermutationWord : public Permutation {
  public:
-  virtual int get_image(int a) = 0;
-  virtual int get_inverse_image(int a) = 0;
-  virtual void compose(const Permutation &g) = 0;
+  int get_image(int a);
+  int get_inverse_image(int a);
+  void compose(const Permutation &g);
 };
 
 }  // namespace fssw
 
-#endif  // INCLUDE_FSSW_PERMUTATION_H_
+#endif  // INCLUDE_FSSW_PERMUTATIONWORD_H_

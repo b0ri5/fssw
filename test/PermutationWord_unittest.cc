@@ -13,10 +13,6 @@ class MapPermutationTest : public ::testing::Test {
  public:
 };
 
-TEST_F(MapPermutationTest, Instantiation) {
-  MapPermutation g;
-}
-
 }  // namespace fssw
 
 
