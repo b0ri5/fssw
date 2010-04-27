@@ -18,6 +18,8 @@ class Permutation {
   virtual int get_image(int a) = 0;
   virtual int get_inverse_image(int a) = 0;
   virtual void compose(const Permutation &g) = 0;
+  virtual void compose_inverse(const Permutation &g) = 0;
+  virtual void clear() = 0;
 };
 
 }  // namespace fssw

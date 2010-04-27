@@ -26,6 +26,8 @@ class MapPermutation : public Permutation {
   int get_image(int a);
   int get_inverse_image(int a);
   void compose(const Permutation &g);
+  void compose_inverse(const Permutation &g);
+  void clear();
 
   string input_string(string s);
 
