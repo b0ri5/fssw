@@ -26,4 +26,12 @@ int MapPermutation::get_inverse_image(int a) {
 void MapPermutation::compose(const Permutation &g) {
 }
 
+void MapPermutation::compose_inverse(const Permutation &g) {
+}
+
+void MapPermutation::clear() {
+  images_.clear();
+  inverse_images_.clear();
+}
+
 }  // namespace fssw
