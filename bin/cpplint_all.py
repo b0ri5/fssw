@@ -14,10 +14,10 @@ def main():
   for src_dir in src_dirs:
     
     for src_file in os.listdir(os.path.join(root, src_dir) ):
-      # only process C++ files
+      # only process C++ files and ignore the virtual warning
       if os.path.splitext(src_file)[1] in ['.cc', '.h']:
         cmd = [sys.executable, cpplint, '--filter=-runtime/virtual',
-           os.path.join(root, src_dir, src_file) ]
+               os.path.join(root, src_dir, src_file) ]
           
         p = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         out, err = p.communicate()
