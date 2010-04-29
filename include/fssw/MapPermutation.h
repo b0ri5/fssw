@@ -1,0 +1,41 @@
+#ifndef INCLUDE_FSSW_MAPPERMUTATION_H_
+#define INCLUDE_FSSW_MAPPERMUTATION_H_
+
+/*
+    Copyright 2010 Greg Tener and Elena Erbiceanu
+    Released under the Lesser General Public License v3.
+*/
+
+#include <fssw/Permutation.h>
+
+#include <map>
+#include <string>
+
+using std::map;
+using std::string;
+
+namespace fssw {
+
+/*
+ * This is an implementation of Permutation which only stores
+ * the mapping for where elements move.
+ */
+
+class MapPermutation : public Permutation {
+ public:
+  int get_image(int a);
+  int get_inverse_image(int a);
+  void compose(const Permutation &g);
+  void compose_inverse(const Permutation &g);
+  void clear();
+
+  string input_string(string s);
+
+ private:
+  map<int, int> images_;
+  map<int, int> inverse_images_;
+};
+
+}  // namespace fssw
+
+#endif  // INCLUDE_FSSW_MAPPERMUTATION_H_
