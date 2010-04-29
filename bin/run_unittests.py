@@ -2,6 +2,7 @@
 
 import os
 import optparse
+import sys
 
 def main():
   parser = optparse.OptionParser()
@@ -17,6 +18,11 @@ def main():
   options, args = parser.parse_args()
   
   bindir = os.path.dirname(__file__)
+  testdir = os.path.join(bindir, 'test')
+  
+  if not os.path.isdir(testdir):
+    print 'bin/test is missing, is gtest configured properly?'
+    sys.exit(1)      
   
   # run the tests ending in "-db"
   if options.debug:
