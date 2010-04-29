@@ -18,12 +18,14 @@ def main():
       if os.path.splitext(src_file)[1] in ['.cc', '.h']:
         cmd = [sys.executable, cpplint, '--filter=-runtime/virtual',
                os.path.join(root, src_dir, src_file) ]
-          
+
         p = sp.Popen(cmd, stdout=sp.PIPE, stderr=sp.PIPE)
         out, err = p.communicate()
         
         if not err.strip().endswith('Total errors found: 0'):
           print err
-        
+  
+  print 'done'
+
 if __name__ == "__main__":
   main()

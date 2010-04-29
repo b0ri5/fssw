@@ -31,3 +31,22 @@ For Developers (G&E):
     site_scons/ scons-specific configuration stuff
     src/        source goes here
     test/       unittests
+    
+  * Working in IDEs
+    Eclipse (needs MercurialEclipse plugin) :
+      1) Create new C++ empty Makefile project (using "Other toolchain")
+      
+      2) Right-click the project in Project Explorer and go to
+         Team->Share Project and share it.
+         
+      3) Right-click the project again and go to Team->Pull and pull it using
+         https://fssw.googlecode.com/hg/ as the URL.
+         
+      4) In properties, specify the build command
+         "python ${ProjDirPath}/scons/scons.py".
+         Under the behavior tab, remove "all" and set the clean field to "-c".
+         
+      5) To create a make target for bin/cpplint_all.py and bin/run_unittests.py
+         add the targets which have the commands
+         $ python ${ProjDirPath}/bin/cpplint_all.py
+         $ python ${ProjDirPath}/bin/run_unittests.py
