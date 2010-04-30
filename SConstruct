@@ -1,6 +1,6 @@
 """
-	Copyright 2010 Greg Tener
-	Released under the Lesser General Public License v3.
+  Copyright 2010 Greg Tener
+  Released under the Lesser General Public License v3.
 """
 
 import os
@@ -19,9 +19,6 @@ env = Environment(tools = ['default', 'packaging', 'boris_scons_tools'])
 # tell the sconscripts about the timing environment 
 # Export('hrtime_env')
 
-conf = Configure(env)
-
-env = conf.Finish()
 
 debug_env = checks.config_debug(env)
 release_env = checks.config_release(env) 
@@ -29,14 +26,36 @@ profile_env = checks.config_profile(env)
 
 Export({'env': debug_env, 'libsuffix': '-db'})
 debug_env.SConscript('src/SConscript',
-					build_dir='build/debug/src', duplicate=0)
+          build_dir='build/debug/src', duplicate=0)
 
-conf = Configure(debug_env)
+conf = Configure(debug_env, checks.all_checks)
+
+
+debug_env['GTEST_LIB'] = ''
+debug_env['GTEST_INCLUDE'] = ''
+has_gtest = False
 
 if conf.CheckLibWithHeader('gtest', 'gtest/gtest.h', 'C++'):
-	debug_env.SConscript('test/SConscript',
-					build_dir='build/debug/test', duplicate=0)
-	
+  has_gtest = True
+else:
+  print '  gtest not found, checking for cmake to build it'
+  
+  if conf.CheckCMake():
+    # build the copy of gtest in thrd-party
+    
+    
+    debug_env['GTEST_INCLUDE'] = '#/third-party/gtest-1.5.0/include'
+    # the scons will set the lib path
+    gtest = debug_env.SConscript('third-party/SConscript')
+    has_gtest = True
+  else:
+    print '  cmake not found, download it at http://www.cmake.org/'
+    has_gtest = False
+
+if has_gtest:
+  debug_env.SConscript('test/SConscript',
+          build_dir='build/debug/test', duplicate=0)
+  
 env = conf.Finish()
 
 #Export({'env': release_env, 'libsuffix': ''})

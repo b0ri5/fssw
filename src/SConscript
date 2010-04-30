@@ -3,8 +3,6 @@ import os
 
 Import('*')
 
-env.AppendUnique(CPPPATH = ['#include'] )
-
 # get a list of source files
 srcs = set()
 
@@ -13,7 +11,7 @@ for f in env.Glob('*.cc'):
 	srcs.add(file)
 
 # compile them into object files
-objs = env.Object(list(srcs) )
+objs = env.Object(list(srcs), CPPPATH=['#include'])
 
 lib_name = 'fssw%s' % (libsuffix)
 lib = env.StaticLibrary('#/lib/%s' % (lib_name), [objs] )

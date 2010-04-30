@@ -5,6 +5,7 @@ import sys
 import string
 import math
 import re
+import subprocess as sp
 
 from SCons.Builder import Builder
 from SCons.Action import Action
@@ -115,9 +116,26 @@ def CheckMPICXX(context, mpi_cxx):
 
 mpi_checks = { 'CheckMPICXX': CheckMPICXX }
 
-# update all of the checks
-all_checks.update(mpi_checks)
-
+def CheckCMake(context):
+    context.Message('Checking for cmake ... ')
+    rv = context.TryAction('cmake')[0]
+    context.Result(rv)
+    
+    # find and set the CMAKE_GENERATOR
+    # TODO: determine the actual way of doing this...
+    # this is ad-hoc because Popen doesn't use
+    # the scons environment to execute CMake so it doesn't
+    # always execute properly... however we only need the first line
+    # so this is ok for now.
+    p = sp.Popen(['cmake', '--system-information'], stdout=sp.PIPE, stderr=sp.PIPE)
+    out = p.communicate()[0]
+    firstline = out[:out.find('\n')]
+    prefix = '-- Building for: '
+    context.env['CMAKE_GENERATOR'] = firstline[len(prefix):].strip()
+    
+    return rv
+   
+all_checks.update({ 'CheckCMake': CheckCMake} )
 
 """
 	Personal configure things to always make sure they are enabled.
