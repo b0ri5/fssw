@@ -21,8 +21,6 @@ env = Environment(tools = ['default', 'packaging', 'boris_scons_tools'])
 
 
 debug_env = checks.config_debug(env)
-release_env = checks.config_release(env) 
-profile_env = checks.config_profile(env)
 
 Export({'env': debug_env, 'libsuffix': '-db'})
 debug_env.SConscript('src/SConscript',
@@ -30,32 +28,34 @@ debug_env.SConscript('src/SConscript',
 
 conf = Configure(debug_env, checks.all_checks)
 
-
+debug_env['CONFIGURATION'] = 'debug'
 debug_env['GTEST_LIB'] = ''
 debug_env['GTEST_INCLUDE'] = ''
 has_gtest = False
+libgtest = None
 
 if conf.CheckLibWithHeader('gtest', 'gtest/gtest.h', 'C++'):
   has_gtest = True
 else:
   print '  gtest not found, checking for cmake to build it'
   
-  if conf.CheckCMake():
+  if conf.CheckExecutable('cmake'):
     # build the copy of gtest in thrd-party
-    
     
     debug_env['GTEST_INCLUDE'] = '#/third-party/gtest-1.5.0/include'
     # the scons will set the lib path
-    gtest = debug_env.SConscript('third-party/SConscript')
+    libgtest = debug_env.SConscript('third-party/SConscript')
+    Import('libgtest')
     has_gtest = True
   else:
     print '  cmake not found, download it at http://www.cmake.org/'
     has_gtest = False
 
 if has_gtest:
+  Export('libgtest')
   debug_env.SConscript('test/SConscript',
           build_dir='build/debug/test', duplicate=0)
-  
+
 env = conf.Finish()
 
 #Export({'env': release_env, 'libsuffix': ''})
