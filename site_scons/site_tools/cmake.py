@@ -39,6 +39,8 @@ def cmake_lib_emitter(target, source, env):
   new_target = []
   new_source = []
   libnames = list(target)
+   
+  target_dir = source_dir
   
   # if we're using visual studios, add a source for each
   # library specified as a .vcproj
@@ -47,6 +49,8 @@ def cmake_lib_emitter(target, source, env):
       new_source.append(source_dir.File('%s.vcproj' % (libname)))
       
     target_dir = source_dir.Dir(env['CONFIGURATION'])
+  elif env['CMAKE_GENERATOR'] == 'NMake Makefiles':
+    new_source = [source_dir.File('Makefile')]
   
   # add the .lib or .a's to the targets
   for libname in libnames:

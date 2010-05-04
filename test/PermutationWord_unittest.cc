@@ -3,15 +3,19 @@
     Released under the Lesser General Public License v3.
 */
 
-#include <fssw/MapPermutation.h>
+#include <fssw/PermutationWord.h>
 
 #include <gtest/gtest.h>
 
 namespace fssw {
 
-class MapPermutationTest : public ::testing::Test {
+class PermutationWordTest : public ::testing::Test {
  public:
 };
+
+TEST_F(PermutationWordTest, Instantiation) {
+	PermutationWord w;
+}
 
 }  // namespace fssw
 
