@@ -6,6 +6,8 @@
     Released under the Lesser General Public License v3.
 */
 
+#include <fssw/Permutation.h>
+
 namespace fssw {
 
 /*
