@@ -12,7 +12,7 @@ for f in env.Glob('*.cc'):
               CPPPATH = ['#include', env['GTEST_INCLUDE']],
 						  LIBPATH = ['#/lib', '#/' + env['GTEST_LIB']],
 						  LIBS = [lib_name, 'gtest', 'gtest_main'])
-  unittest_name = '%s%s' % (name, libsuffix)
+  unittest_name = '%s%s%s' % (name, libsuffix, env['PROGSUFFIX'])
   
   depends = [lib]
   
@@ -20,4 +20,4 @@ for f in env.Glob('*.cc'):
     depends.append(libgtest)
     
   env.Depends(unittest, depends)
-  env.Install('#/bin/test/', unittest)
+  env.InstallAs('#/bin/test/%s' % (unittest_name), unittest)

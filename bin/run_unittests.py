@@ -27,7 +27,8 @@ def main():
   # run the tests ending in "-db"
   if options.debug:
     for f in os.listdir(os.path.join(bindir, 'test') ):
-      if f.endswith('-db'):
+      name, ext = os.path.splitext(f)
+      if name.endswith('-db'):
         os.system(os.path.join(bindir, 'test', f) )
   
   # run the tests not ending with "-db"
