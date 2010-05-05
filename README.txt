@@ -25,12 +25,13 @@ For Developers (G&E):
     $ python bin/run_unittests.py.
     
   * Directory structure
-    bin/        includes scripts and compiled binaries
-    include/    headers go here
-    scons/      local scons install, called by scons.[sh|bat]
-    site_scons/ scons-specific configuration stuff
-    src/        source goes here
-    test/       unittests
+    bin/         includes scripts and compiled binaries
+    include/     headers go here
+    scons/       local scons install, called by scons.[sh|bat]
+    site_scons/  scons-specific configuration stuff
+    src/         source goes here
+    test/        unittests
+    third-party/ tools (like gtest)
     
   * Working in IDEs
     Eclipse (needs MercurialEclipse plugin) :

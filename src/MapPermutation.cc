@@ -55,33 +55,6 @@ static bool is_whitespace(char c) {
   return false;
 }
 
-static string trim_front(string s) {
-  int start = 0;
-
-  while (start < s.size() && is_whitespace(s.at(start))) {
-    start++;
-  }
-
-  return s.substr(start);
-}
-
-static string trim_back(string s) {
-  int end = s.size() - 1;
-
-  while (end > 0 && is_whitespace(s.at(end))) {
-    end--;
-  }
-
-  return s.substr(0, end);
-}
-
-static string trim_whitespace(string s) {
-  s = trim_front(s);
-  s = trim_back(s);
-
-  return s;
-}
-
 static bool is_digit(char c) {
   return (c >= '0' && c <= '9');
 }
