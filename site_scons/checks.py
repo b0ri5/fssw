@@ -195,6 +195,17 @@ def config_profile(env):
   return env
 
 """
+  Add flags based on the configuration string
+"""
+def config(env, configuration):
+  if configuration == 'release':
+    return config_release(env)
+  elif configuration == 'debug':
+    return config_debug(env)
+  elif configuration == 'profile':
+    return config_profile(env)
+
+"""
   Configure the best choice for a high resolution timer (in hrtimer.cpp).
 """
 def config_hrtime(env, conf):

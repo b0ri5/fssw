@@ -8,58 +8,53 @@ import checks
 
 env = Environment(tools = ['default', 'packaging', 'boris_scons_tools'])
 
-# add checks for the high resolution timer
-# conf = Configure(env, checks.hrtime_checks)
+# begin checks
+conf = Configure(env, checks.all_checks)
 
-# get the environment for high resolution timing
-# hrtime_env = checks.config_hrtime(env, conf)
+# check for gtest
+has_gtest = conf.CheckLibWithHeader('gtest', 'gtest/gtest.h', 'C++')
 
-# conf.Finish()
+# only check for cmake if needed
+if not has_gtest:
+  print '  gtest not found, checking for cmake to build it'
+  has_cmake = conf.CheckExecutable('cmake')
+  if not has_cmake:
+    print '  cmake not found, download it at http://www.cmake.org/'
+conf.Finish()
 
-# tell the sconscripts about the timing environment 
-# Export('hrtime_env')
+# set up for using multiple configurations
+configs = ARGUMENTS.get('config', 'debug')
+config_libsuffixes = {'debug' : '-db', 'release' : ''}
 
-
-debug_env = checks.config_debug(env)
-
-Export({'env': debug_env, 'libsuffix': '-db'})
-debug_env.SConscript('src/SConscript',
+for config in configs.split(','):
+  config_env = checks.config(env, config)
+  libsuffix = config_libsuffixes[config]
+  
+  # export the environment and libsuffix to the SConscripts
+  Export({'env': config_env, 'libsuffix': libsuffix})
+  
+  # build the fssw library
+  config_env.SConscript('src/SConscript',
           build_dir='build/debug/src', duplicate=0)
 
-conf = Configure(debug_env, checks.all_checks)
-
-debug_env['CONFIGURATION'] = 'debug'
-debug_env['GTEST_LIB'] = ''
-debug_env['GTEST_INCLUDE'] = ''
-has_gtest = False
-libgtest = None
-
-if conf.CheckLibWithHeader('gtest', 'gtest/gtest.h', 'C++'):
-  has_gtest = True
-else:
-  print '  gtest not found, checking for cmake to build it'
+  conf = Configure(config_env, checks.all_checks)
+  config_env['CONFIGURATION'] = config
   
-  if conf.CheckExecutable('cmake'):
-    # build the copy of gtest in thrd-party
+  config_env['GTEST_LIB'] = ''
+  config_env['GTEST_INCLUDE'] = ''
+  libgtest = None
+
+  if not has_gtest and has_cmake:
+    # build the copy of gtest in third-party
     
-    debug_env['GTEST_INCLUDE'] = '#/third-party/gtest-1.5.0/include'
-    # the scons will set the lib path
-    libgtest = debug_env.SConscript('third-party/SConscript')
+    config_env['GTEST_INCLUDE'] = '#/third-party/gtest-1.5.0/include'
+    # the SConscript will set GTEST_LIB appropriately
+    config_env.SConscript('third-party/SConscript')
     Import('libgtest')
     has_gtest = True
-  else:
-    print '  cmake not found, download it at http://www.cmake.org/'
-    has_gtest = False
-
-if has_gtest:
-  Export('libgtest')
-  debug_env.SConscript('test/SConscript',
+ 
+  if has_gtest:
+    Export('libgtest')
+    config_env.SConscript('test/SConscript',
           build_dir='build/debug/test', duplicate=0)
 
-env = conf.Finish()
-
-#Export({'env': release_env, 'libsuffix': ''})
-#release_env.SConscript('src/SConscript', build_dir='build/release', duplicate=0)
-
-#Export({'env': profile_env, 'libsuffix': '-prof'})
-#profile_env.SConscript('src/SConscript', build_dir='build/profile', duplicate=0)
