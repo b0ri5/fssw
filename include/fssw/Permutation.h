@@ -15,10 +15,20 @@ namespace fssw {
 
 class Permutation {
  public:
+  // returns the image of element a: a^{this}
   virtual int get_image(int a) = 0;
+
+  // returns a^{this^{-1}}
   virtual int get_inverse_image(int a) = 0;
+
+  // sets to: (this*g)(a) = g( this(a) )
+  // e.g.: this=(0 1 2); g =(0 1), then this*g=(0)(1 2)
   virtual void compose(const Permutation &g) = 0;
+
+  // composes with g^{-1}
   virtual void compose_inverse(const Permutation &g) = 0;
+
+  // sets to identity
   virtual void clear() = 0;
 };
 

@@ -29,7 +29,14 @@ class MapPermutation : public Permutation {
   void compose_inverse(const Permutation &g);
   void clear();
 
-  string input_string(string s);
+  bool is_identity();
+
+  // sets the permutation from string s, in disjoint cycle notation, e.g. s="(0 2)(1 4)";
+  // in Cartesian representation, s is:
+  // s = 0 1 2 3 4
+  //     2 4 0 3 1
+  // if parsing is unsuccessful return false, set to identity
+  bool from_string(string s);
 
  private:
   map<int, int> images_;
