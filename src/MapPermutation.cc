@@ -146,7 +146,8 @@ bool parse_cycle(const string &s, int *pos_ptr, vector<int> *cycle_ptr,
   }
 
   if (*pos_ptr >= s.length() || s.at(*pos_ptr) != ')') {
-    fprintf(stdout, "Expected ending parenthesis: %s at %d\n", s.c_str(), *pos_ptr);
+    fprintf(stdout, "Expected ending parenthesis: %s at %d\n",
+            s.c_str(), *pos_ptr);
     return false;
   }
   (*pos_ptr)++;

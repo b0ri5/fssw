@@ -31,7 +31,8 @@ class MapPermutation : public Permutation {
 
   bool is_identity();
 
-  // sets the permutation from string s, in disjoint cycle notation, e.g. s="(0 2)(1 4)";
+  // sets the permutation from string s, in disjoint cycle notation,
+  // e.g. s="(0 2)(1 4)";
   // in Cartesian representation, s is:
   // s = 0 1 2 3 4
   //     2 4 0 3 1

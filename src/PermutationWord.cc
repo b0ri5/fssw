@@ -8,11 +8,11 @@
 namespace fssw {
 
 int PermutationWord::get_image(int a) {
-	return 0;
+  return 0;
 }
 
 int PermutationWord::get_inverse_image(int a) {
-	return 0;
+  return 0;
 }
 
 void PermutationWord::compose(const Permutation &g) {

@@ -14,7 +14,7 @@ class PermutationWordTest : public ::testing::Test {
 };
 
 TEST_F(PermutationWordTest, Instantiation) {
-	PermutationWord w;
+  PermutationWord w;
 }
 
 }  // namespace fssw
