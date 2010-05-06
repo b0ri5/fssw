@@ -14,6 +14,11 @@ def cmake_emitter(target, source, env):
   # need to remove the source-tree directory to avoid a circular dependency
   new_targets = []
   
+  # if we're using NMake we need to have different cmake binary-trees for
+  # debug and release configurations
+  if env['CMAKE_GENERATOR'] == 'NMake Makefiles':
+    target_dir = target_dir.Dir(env['CONFIGURATION'])
+    
   new_targets.append(target_dir.Dir('CMakeFiles'))
   new_targets.append(target_dir.File('CMakeCache.txt'))
   new_targets.append(target_dir.File('cmake_install.cmake'))
@@ -26,7 +31,20 @@ def cmake_emitter(target, source, env):
     source == source-tree directory
 """
 def cmake_generator(target, source, env, for_signature):
-  return [Mkdir('${TARGET.dir}'), env['CMAKECOM']]
+  target_dir = str(target[0].dir)
+  source_dir = str(source[0])
+  
+  cmd = 'cd ${TARGET.dir} && cmake'
+  
+  # if we're using a single-configuration generator, specify the configuration
+  # when creating the binary tree
+  if env['CMAKE_GENERATOR'] == 'NMake Makefiles':
+    cmd += ' -D CMAKE_BUILD_TYPE=%s' % (env['CONFIGURATION'])
+
+  relpath = os.path.relpath(source_dir, target_dir)
+  cmd += ' %s' % (relpath)
+  
+  return [Mkdir('${TARGET.dir}'), cmd]
 
 
 """
@@ -39,7 +57,7 @@ def cmake_lib_emitter(target, source, env):
   new_target = []
   new_source = []
   libnames = list(target)
-   
+  
   target_dir = source_dir
   
   # if we're using visual studios, add a source for each
@@ -50,7 +68,8 @@ def cmake_lib_emitter(target, source, env):
       
     target_dir = source_dir.Dir(env['CONFIGURATION'])
   elif env['CMAKE_GENERATOR'] == 'NMake Makefiles':
-    new_source = [source_dir.File('Makefile')]
+    new_source = [source_dir.Dir(env['CONFIGURATION']).File('Makefile')]
+    target_dir = source_dir.Dir(env['CONFIGURATION'])
   
   # add the .lib or .a's to the targets
   for libname in libnames:
@@ -91,9 +110,6 @@ def set_cmake_generator(env):
 def generate(env):
   env.PrependENVPath('PATH', os.environ['PATH'])
   env.Tool('default')
-  
-  env['CMAKECOM'] = 'cd ${TARGET.dir} && cmake ..' + \
-                     os.sep + '${SOURCE.filebase}'
   
   # append the builders for using CMake
   bld = SCons.Builder.Builder(target_factory=SCons.Node.FS.Dir,
