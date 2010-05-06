@@ -178,20 +178,20 @@ bool MapPermutation::from_string(string s) {
       cycle_it != cycles.end(); cycle_it++) {
     int element_pos = 0;
     int a = 0;
-    int b = 0;
+    int a_image = 0;
 
     while (element_pos + 1 < cycle_it->size()) {
       a = cycle_it->at(element_pos);
-      b = cycle_it->at(element_pos + 1);
-      images_[a] = b;
-      inverse_images_[b] = a;
+      a_image = cycle_it->at(element_pos + 1);
+      images_[a] = a_image;
+      inverse_images_[a_image] = a;
       element_pos++;
     }
     // connect circular ends
     a = cycle_it->at(cycle_it->size() - 1);
-    b = cycle_it->at(0);
-    images_[a] = b;
-    inverse_images_[b] = a;
+    a_image = cycle_it->at(0);
+    images_[a] = a_image;
+    inverse_images_[a_image] = a;
   }
 
   return true;

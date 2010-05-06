@@ -11,9 +11,9 @@ namespace fssw {
 
 class MapPermutationTest : public ::testing::Test {
  public:
-  void verify_mapping(MapPermutation g, int first, int second) {
-    EXPECT_EQ(g.get_image(first), second);
-    EXPECT_EQ(g.get_inverse_image(second), first);
+  void verify_mapping(MapPermutation g, int a, int a_image) {
+    EXPECT_EQ(g.get_image(a), a_image);
+    EXPECT_EQ(g.get_inverse_image(a_image), a);
   }
 };
 
