@@ -1,6 +1,7 @@
 import SCons.Builder
 import subprocess as sp
 import os
+import checks
 import SCons.Node.FS
 import SCons.Node.Python
 from SCons.Script import *
@@ -131,4 +132,8 @@ def generate(env):
 
 """ See if we can call CMake"""
 def exists(env):
-  return env.Detect('cmake')
+  conf = env.Configure(checks.all_checks)  
+  rv = conf.TryAction('cmake')  
+  conf.Finish()
+  
+  return rv[0]

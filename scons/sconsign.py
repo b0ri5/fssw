@@ -24,17 +24,17 @@
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-__revision__ = "src/script/sconsign.py 4720 2010/03/24 03:14:11 jars"
+__revision__ = "src/script/sconsign.py 4824 2010/05/01 19:13:18 bdeegan"
 
-__version__ = "1.3.0"
+__version__ = "1.3.0.d20100501"
 
-__build__ = "r4720"
+__build__ = "r4824"
 
-__buildsys__ = "jars-desktop"
+__buildsys__ = "ubuntu"
 
-__date__ = "2010/03/24 03:14:11"
+__date__ = "2010/05/01 19:13:18"
 
-__developer__ = "jars"
+__developer__ = "bdeegan"
 
 import os
 import os.path
