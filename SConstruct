@@ -22,13 +22,12 @@ if not has_gtest:
     print '  cmake not found, download it at http://www.cmake.org/'
 conf.Finish()
 
-# set up for using multiple configurations
+# set up for using multiple configurations, using debug as the default
 configs = ARGUMENTS.get('config', 'debug') 
 config_libsuffixes = {'debug' : '-db', 'release' : ''}
 
-print configs, configs.split(',')
-
 for config in configs.split(','):
+  print '***Building for %s***' % (config)
   config_env = checks.config(env, config)
   libsuffix = config_libsuffixes[config]
   config_env['CONFIGURATION'] = config

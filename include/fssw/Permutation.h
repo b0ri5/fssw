@@ -11,6 +11,10 @@ namespace fssw {
 /*
  * The base permutation object. It only needs to know what an element
  * is mapped to and how to compose itself with another permutation.
+ * The permutation acts on the nonnegative integers {0, ...}. The variables
+ * "a" and "b" will be used to denote nonnegative integers and the variables
+ * "g" and "h" will be used to denote permutations
+ * (i.e. they're group elements).
  */
 
 class Permutation {
