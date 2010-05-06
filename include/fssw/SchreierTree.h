@@ -21,7 +21,11 @@ class SchreierTree {
  public:
   explicit SchreierTree(int root);
 
-  bool is_minimal_in_orbit(int a);
+  // returns if "a" is minimal in the orbit of root_
+  bool is_minimal(int a);
+
+  // returns if "a" is in the orbit of root_
+  bool contains(int a);
 
  private:
   map<int, Permutation *> tree_;
