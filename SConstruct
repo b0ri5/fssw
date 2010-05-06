@@ -23,22 +23,22 @@ if not has_gtest:
 conf.Finish()
 
 # set up for using multiple configurations
-configs = ARGUMENTS.get('config', 'debug')
+configs = ARGUMENTS.get('config', 'debug') 
 config_libsuffixes = {'debug' : '-db', 'release' : ''}
+
+print configs, configs.split(',')
 
 for config in configs.split(','):
   config_env = checks.config(env, config)
   libsuffix = config_libsuffixes[config]
+  config_env['CONFIGURATION'] = config
   
   # export the environment and libsuffix to the SConscripts
   Export({'env': config_env, 'libsuffix': libsuffix})
   
   # build the fssw library
   config_env.SConscript('src/SConscript',
-          build_dir='build/debug/src', duplicate=0)
-
-  conf = Configure(config_env, checks.all_checks)
-  config_env['CONFIGURATION'] = config
+          build_dir='build/%s/src' % (config), duplicate=0)
   
   config_env['GTEST_LIB'] = ''
   config_env['GTEST_INCLUDE'] = ''
@@ -56,5 +56,6 @@ for config in configs.split(','):
   if has_gtest:
     Export('libgtest')
     config_env.SConscript('test/SConscript',
-          build_dir='build/debug/test', duplicate=0)
+          build_dir='build/%s/test' % (config), duplicate=0)
+    has_gtest = False # falsify this for future configs that might need it
 

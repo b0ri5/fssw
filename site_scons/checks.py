@@ -151,13 +151,13 @@ def config_general(env):
 def config_debug(env):
   env = config_general(env)
     
-  if (not env['CC'] == 'cl'):
+  if (env['CC'] != 'cl'):
     env.AppendUnique(CCFLAGS = ['-g'] )
   else:
     # these were garned through MSVS's stuff
     env.AppendUnique(CCFLAGS=['/Zi'] )
-    env.AppendUnique(LINKFLAGS=['/DEBUG'] )
     env.AppendUnique(CCFLAGS=['/MTd'])
+    env.AppendUnique(LINKFLAGS=['/DEBUG'] )
     
     # I consider this a bug in SCons, but using mutliple jobs
     # in conjunction with /Zi flag for cl tries to jump the gun in 
@@ -175,10 +175,11 @@ def config_release(env):
   
   env.AppendUnique(CPPDEFINES = ['NDEBUG'] )
   
-  if (not env['CC'] == 'cl'):
+  if (env['CC'] != 'cl'):
     env.AppendUnique(CCFLAGS = ['-O3'] )
   else:
     env.AppendUnique(CCFLAGS = ['/O2'] )
+    env.AppendUnique(CCFLAGS=['/MT'])
     
   return env;
 
