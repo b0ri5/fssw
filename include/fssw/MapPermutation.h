@@ -52,6 +52,7 @@ class MapPermutation : public Permutation {
   map<int, int> inverse_images_;
 
   void set_image(int a, int b);
+  void compose_with_mapping(const map<int, int> &mapping);
 };
 
 }  // namespace fssw
