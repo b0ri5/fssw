@@ -15,23 +15,23 @@ using std::set;
 namespace fssw {
 
 int MapPermutation::get_image(int a) const {
-  map<int, int>::const_iterator a_it = images_.find(a);
+  map<int, int>::const_iterator images_it = images_.find(a);
 
-  if (a_it == images_.end()) {
+  if (images_it == images_.end()) {
     return a;
   }
 
-  return a_it->second;
+  return images_it->second;
 }
 
 int MapPermutation::get_inverse_image(int a) const {
-  map<int, int>::const_iterator a_it = inverse_images_.find(a);
+  map<int, int>::const_iterator images_it = inverse_images_.find(a);
 
-  if (a_it == inverse_images_.end()) {
+  if (images_it == inverse_images_.end()) {
     return a;
   }
 
-  return a_it->second;
+  return images_it->second;
 }
 
 void MapPermutation::set_image(int a, int b) {
@@ -56,22 +56,22 @@ void MapPermutation::compose_with_mapping(const map<int, int> &mapping) {
     // keep track of images
     elements_seen.insert(b);
 
-    map<int, int>::const_iterator g_it = mapping.find(b);
-    if (g_it == mapping.end()) {
+    map<int, int>::const_iterator mapping_it = mapping.find(b);
+    if (mapping_it == mapping.end()) {
       c = b;
     } else {
-      c = g_it->second;
+      c = mapping_it->second;
     }
 
     result.set_image(a, c);
   }
 
-  for (map<int, int>::const_iterator g_it = mapping.begin(); g_it
-      != mapping.end(); ++g_it) {
+  for (map<int, int>::const_iterator mapping_it = mapping.begin(); mapping_it
+      != mapping.end(); ++mapping_it) {
     // if mapping moves an element that did not exist as an image in this
     // permutation, it was an implied (a -> a)
-    if (elements_seen.find(g_it->first) == elements_seen.end()) {
-      result.set_image(g_it->first, g_it->second);
+    if (elements_seen.find(mapping_it->first) == elements_seen.end()) {
+      result.set_image(mapping_it->first, mapping_it->second);
     }
   }
   // replace this with the result
@@ -249,14 +249,24 @@ bool MapPermutation::is_equal(const MapPermutation &g) const {
     return false;
   }
 
-  for (map<int, int>::const_iterator a_it = images_.begin();
-      a_it != images_.end(); ++a_it) {
-    if (a_it->second != g.get_image(a_it->first)) {
+  for (map<int, int>::const_iterator images_it = images_.begin();
+      images_it != images_.end(); ++images_it) {
+    int a = images_it->first;
+    int a_image = images_it->second;
+
+    if (a_image != g.get_image(a)) {
       return false;
     }
   }
 
   return true;
+}
+
+static string int2string(int a)
+{
+  char a_s[32];
+  sprintf(a_s, "%d", a);
+  return string(a_s);
 }
 
 string MapPermutation::to_string() const {
@@ -267,35 +277,28 @@ string MapPermutation::to_string() const {
   string s = "";
   set<int> elements_seen;
 
-  for (map<int, int>::const_iterator a_it = images_.begin();
-      a_it != images_.end(); ++a_it) {
-    int a = a_it->first;
+  // iterate over the images
+  for (map<int, int>::const_iterator images_it = images_.begin();
+      images_it != images_.end(); ++images_it) {
+    int a = images_it->first;
 
-    // try to get cycle
-    int cycle_length = 0;
-
-    while (true) {
-      // if this element has already been used, skip
-      if (elements_seen.find(a) != elements_seen.end()) {
-        // close cycle
-        if (cycle_length > 0) {
-          s += ")";
-          cycle_length = 0;
-        }
-        break;
-      }
-      // follow through the cycle
-      elements_seen.insert(a);
-      char a_s[32];
-      itoa(a, a_s, sizeof(a_s) / sizeof(*a_s));
-      if (cycle_length == 0) {
-        s += "(" + string(a_s);
-      } else {
-        s += " " + string(a_s);
-      }
-      a = get_image(a);
-      ++cycle_length;
+    // if we've already output "a" then continue
+    if (elements_seen.find(a) != elements_seen.end()) {
+      continue;
     }
+
+    s += "(" + int2string(a);  // append the first element
+    elements_seen.insert(a);
+    a = get_image(a);
+
+    // now append the rest of the cycle
+    while (a != images_it->first) {
+      elements_seen.insert(a);
+      s += " " + int2string(a);
+      a = get_image(a);
+    }
+
+    s += ")";  // close the cycle
   }
 
   return s;
