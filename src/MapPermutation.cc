@@ -44,54 +44,47 @@ void MapPermutation::set_image(int a, int b) {
   }
 }
 
-void MapPermutation::compose(const MapPermutation &g) {
+void MapPermutation::compose_with_mapping(const map<int, int> &mapping) {
   set<int> elements_seen;
   MapPermutation result;
 
-  for (map<int, int>::iterator me_it = images_.begin();
-      me_it != images_.end(); ++me_it) {
+  for (map<int, int>::iterator images_it = images_.begin();
+      images_it != images_.end(); ++images_it) {
+    int a = images_it->first;
+    int b = images_it->second;
+    int c = 0;
     // keep track of images
-    elements_seen.insert(me_it->second);
-    result.set_image(me_it->first, g.get_image(me_it->second));
+    elements_seen.insert(b);
+
+    map<int, int>::const_iterator g_it = mapping.find(b);
+    if (g_it == mapping.end()) {
+      c = b;
+    } else {
+      c = g_it->second;
+    }
+
+    result.set_image(a, c);
   }
 
-  for (map<int, int>::const_iterator g_it = g.images_.begin();
-      g_it != g.images_.end(); ++g_it) {
-    // if g moves an element that did not exist as an image in this
+  for (map<int, int>::const_iterator g_it = mapping.begin(); g_it
+      != mapping.end(); ++g_it) {
+    // if mapping moves an element that did not exist as an image in this
     // permutation, it was an implied (a -> a)
     if (elements_seen.find(g_it->first) == elements_seen.end()) {
       result.set_image(g_it->first, g_it->second);
     }
   }
   // replace this with the result
-  this->clear();
   this->images_ = result.images_;
   this->inverse_images_ = result.inverse_images_;
 }
 
+void MapPermutation::compose(const MapPermutation &g) {
+  compose_with_mapping(g.images_);
+}
+
 void MapPermutation::compose_inverse(const MapPermutation &g) {
-  set<int> elements_seen;
-  MapPermutation result;
-
-  for (map<int, int>::iterator me_it = images_.begin();
-      me_it != images_.end(); ++me_it) {
-    // keep track of images
-    elements_seen.insert(me_it->second);
-    result.set_image(me_it->first, g.get_inverse_image(me_it->second));
-  }
-
-  for (map<int, int>::const_iterator g_it = g.inverse_images_.begin();
-      g_it != g.inverse_images_.end(); ++g_it) {
-    // if g inverse moves an element that did not exist as an image in this
-    // permutation, it was an implied (a -> a)
-    if (elements_seen.find(g_it->first) == elements_seen.end()) {
-      result.set_image(g_it->first, g_it->second);
-    }
-  }
-  // replace this with the result
-  this->clear();
-  this->images_ = result.images_;
-  this->inverse_images_ = result.inverse_images_;
+  compose_with_mapping(g.inverse_images_);
 }
 
 void MapPermutation::clear() {
@@ -186,7 +179,7 @@ bool parse_cycle(const string &s, int *pos_ptr, vector<int> *cycle_ptr,
 }
 
 // advances to the first non-whitespace character
-void eat_whitespace(const string &s, int *pos_ptr) {
+static void eat_whitespace(const string &s, int *pos_ptr) {
   while (*pos_ptr < s.length() && is_whitespace(s.at(*pos_ptr))) {
     (*pos_ptr)++;
   }
@@ -293,8 +286,8 @@ string MapPermutation::to_string() const {
       }
       // follow through the cycle
       elements_seen.insert(a);
-      char a_s[10];
-      itoa(a, a_s, 10);
+      char a_s[32];
+      itoa(a, a_s, sizeof(a_s) / sizeof(*a_s));
       if (cycle_length == 0) {
         s += "(" + string(a_s);
       } else {
@@ -304,6 +297,7 @@ string MapPermutation::to_string() const {
       ++cycle_length;
     }
   }
+
   return s;
 }
 
