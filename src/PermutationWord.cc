@@ -7,18 +7,18 @@
 
 namespace fssw {
 
-int PermutationWord::get_image(int a) {
+int PermutationWord::get_image(int a) const {
   return 0;
 }
 
-int PermutationWord::get_inverse_image(int a) {
+int PermutationWord::get_inverse_image(int a) const {
   return 0;
 }
 
-void PermutationWord::compose(const Permutation &g) {
+void PermutationWord::compose(const PermutationWord &g) {
 }
 
-void PermutationWord::compose_inverse(const Permutation &g) {
+void PermutationWord::compose_inverse(const PermutationWord &g) {
 }
 
 void PermutationWord::clear() {

@@ -23,13 +23,19 @@ namespace fssw {
 
 class MapPermutation : public Permutation {
  public:
-  int get_image(int a);
-  int get_inverse_image(int a);
-  void compose(const Permutation &g);
-  void compose_inverse(const Permutation &g);
+  int get_image(int a) const;
+  int get_inverse_image(int a) const;
   void clear();
 
-  bool is_identity();
+  // sets to: (this*g)(a) = g( this(a) )
+  // e.g.: this=(0 1 2); g =(0 1), then this*g=(0)(1 2)
+  void compose(const MapPermutation &g);
+
+  // composes with g^{-1}
+  void compose_inverse(const MapPermutation &g);
+
+  bool is_identity() const;
+  bool is_equal(const MapPermutation &g) const;
 
   // sets the permutation from string s, in disjoint cycle notation,
   // e.g. s="(0 2)(1 4)";
@@ -39,9 +45,13 @@ class MapPermutation : public Permutation {
   // if parsing is unsuccessful return false, set to identity
   bool from_string(string s);
 
+  string to_string() const;
+
  private:
   map<int, int> images_;
   map<int, int> inverse_images_;
+
+  void set_image(int a, int b);
 };
 
 }  // namespace fssw
