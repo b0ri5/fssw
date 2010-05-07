@@ -14,28 +14,84 @@ using std::set;
 
 namespace fssw {
 
-int MapPermutation::get_image(int a) {
-  if (images_.find(a) == images_.end()) {
-      return a;
+int MapPermutation::get_image(int a) const {
+  map<int, int>::const_iterator a_it = images_.find(a);
+
+  if (a_it == images_.end()) {
+    return a;
   }
 
-  return images_[a];
+  return a_it->second;
 }
 
-int MapPermutation::get_inverse_image(int a) {
-  if (inverse_images_.find(a) == inverse_images_.end()) {
-      return a;
+int MapPermutation::get_inverse_image(int a) const {
+  map<int, int>::const_iterator a_it = inverse_images_.find(a);
+
+  if (a_it == inverse_images_.end()) {
+    return a;
   }
 
-  return inverse_images_[a];
+  return a_it->second;
 }
 
-void MapPermutation::compose(const Permutation &g) {
-  // at the end, check for validity
+void MapPermutation::set_image(int a, int b) {
+  if (a == b) {
+    images_.erase(a);
+    inverse_images_.erase(a);
+  } else {
+    images_[a] = b;
+    inverse_images_[b] = a;
+  }
 }
 
-void MapPermutation::compose_inverse(const Permutation &g) {
-  // at the end, check for validity
+void MapPermutation::compose(const MapPermutation &g) {
+  set<int> elements_seen;
+  MapPermutation result;
+
+  for (map<int, int>::iterator me_it = images_.begin();
+      me_it != images_.end(); ++me_it) {
+    // keep track of images
+    elements_seen.insert(me_it->second);
+    result.set_image(me_it->first, g.get_image(me_it->second));
+  }
+
+  for (map<int, int>::const_iterator g_it = g.images_.begin();
+      g_it != g.images_.end(); ++g_it) {
+    // if g moves an element that did not exist as an image in this
+    // permutation, it was an implied (a -> a)
+    if (elements_seen.find(g_it->first) == elements_seen.end()) {
+      result.set_image(g_it->first, g_it->second);
+    }
+  }
+  // replace this with the result
+  this->clear();
+  this->images_ = result.images_;
+  this->inverse_images_ = result.inverse_images_;
+}
+
+void MapPermutation::compose_inverse(const MapPermutation &g) {
+  set<int> elements_seen;
+  MapPermutation result;
+
+  for (map<int, int>::iterator me_it = images_.begin();
+      me_it != images_.end(); ++me_it) {
+    // keep track of images
+    elements_seen.insert(me_it->second);
+    result.set_image(me_it->first, g.get_inverse_image(me_it->second));
+  }
+
+  for (map<int, int>::const_iterator g_it = g.inverse_images_.begin();
+      g_it != g.inverse_images_.end(); ++g_it) {
+    // if g inverse moves an element that did not exist as an image in this
+    // permutation, it was an implied (a -> a)
+    if (elements_seen.find(g_it->first) == elements_seen.end()) {
+      result.set_image(g_it->first, g_it->second);
+    }
+  }
+  // replace this with the result
+  this->clear();
+  this->images_ = result.images_;
+  this->inverse_images_ = result.inverse_images_;
 }
 
 void MapPermutation::clear() {
@@ -43,7 +99,7 @@ void MapPermutation::clear() {
   inverse_images_.clear();
 }
 
-bool MapPermutation::is_identity() {
+bool MapPermutation::is_identity() const {
   return images_.size() == 0;
 }
 
@@ -183,18 +239,72 @@ bool MapPermutation::from_string(string s) {
     while (element_pos + 1 < cycle_it->size()) {
       a = cycle_it->at(element_pos);
       a_image = cycle_it->at(element_pos + 1);
-      images_[a] = a_image;
-      inverse_images_[a_image] = a;
+      set_image(a, a_image);
       element_pos++;
     }
     // connect circular ends
     a = cycle_it->at(cycle_it->size() - 1);
     a_image = cycle_it->at(0);
-    images_[a] = a_image;
-    inverse_images_[a_image] = a;
+    set_image(a, a_image);
   }
 
   return true;
+}
+
+bool MapPermutation::is_equal(const MapPermutation &g) const {
+  if (images_.size() != g.images_.size()) {
+    return false;
+  }
+
+  for (map<int, int>::const_iterator a_it = images_.begin();
+      a_it != images_.end(); ++a_it) {
+    if (a_it->second != g.get_image(a_it->first)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+string MapPermutation::to_string() const {
+  if (is_identity()) {
+    return "()";
+  }
+
+  string s = "";
+  set<int> elements_seen;
+
+  for (map<int, int>::const_iterator a_it = images_.begin();
+      a_it != images_.end(); ++a_it) {
+    int a = a_it->first;
+
+    // try to get cycle
+    int cycle_length = 0;
+
+    while (true) {
+      // if this element has already been used, skip
+      if (elements_seen.find(a) != elements_seen.end()) {
+        // close cycle
+        if (cycle_length > 0) {
+          s += ")";
+          cycle_length = 0;
+        }
+        break;
+      }
+      // follow through the cycle
+      elements_seen.insert(a);
+      char a_s[10];
+      itoa(a, a_s, 10);
+      if (cycle_length == 0) {
+        s += "(" + string(a_s);
+      } else {
+        s += " " + string(a_s);
+      }
+      a = get_image(a);
+      ++cycle_length;
+    }
+  }
+  return s;
 }
 
 }  // namespace fssw

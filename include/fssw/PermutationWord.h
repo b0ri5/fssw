@@ -17,11 +17,12 @@ namespace fssw {
 
 class PermutationWord : public Permutation {
  public:
-  int get_image(int a);
-  int get_inverse_image(int a);
-  void compose(const Permutation &g);
-  void compose_inverse(const Permutation &g);
+  int get_image(int a) const;
+  int get_inverse_image(int a) const;
   void clear();
+
+  void compose(const PermutationWord &g);
+  void compose_inverse(const PermutationWord &g);
 };
 
 }  // namespace fssw
