@@ -7,12 +7,38 @@
 */
 
 #include <fssw/Permutation.h>
+#include <fssw/MapPermutation.h>
+
+#include <string>
+#include <utility>
+#include <vector>
+
+using std::pair;
+using std::vector;
 
 namespace fssw {
+
+class MapPermutation;
+
+/*
+ * Single permutation element for the PermutationWord.
+ */
+struct PermutationPart {
+  MapPermutation g;
+  bool is_inverse;
+
+  PermutationPart();
+  PermutationPart(const MapPermutation &g, bool is_inverse);
+  bool from_string(string s);
+};
 
 /*
  * The base permutation object. It only needs to know what an element
  * is mapped to and how to compose itself with another permutation.
+ *
+ * For now, compose actions do not contract g*g^{-1} and g^{-1}*g to identity;
+ * this can be added later, by checking the matching end points of the words:
+ * for the two PermutationPart ends g should be the same, is_inverse different.
  */
 
 class PermutationWord : public Permutation {
@@ -23,6 +49,17 @@ class PermutationWord : public Permutation {
 
   void compose(const PermutationWord &g);
   void compose_inverse(const PermutationWord &g);
+  void compose(const MapPermutation &g);
+  void compose_inverse(const MapPermutation &g);
+
+  bool is_identity() const;
+  void evaluate(MapPermutation *g_ptr) const;
+
+  bool from_string(string s);
+  string to_string() const;
+
+ private:
+  vector<PermutationPart> permutations_;
 };
 
 }  // namespace fssw

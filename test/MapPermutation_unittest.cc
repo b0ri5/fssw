@@ -37,6 +37,9 @@ TEST_F(MapPermutationTest, FromStringIdentity) {
 TEST_F(MapPermutationTest, FromStringMalformed) {
   MapPermutation g;
 
+  EXPECT_FALSE(g.from_string(""));
+  EXPECT_TRUE(g.is_identity());
+
   EXPECT_FALSE(g.from_string("("));
   EXPECT_TRUE(g.is_identity());
 
