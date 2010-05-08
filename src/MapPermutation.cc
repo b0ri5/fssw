@@ -193,6 +193,11 @@ bool MapPermutation::from_string(string s) {
   // eat initial whitespace
   eat_whitespace(s, &pos);
 
+  if (pos == s.length()) {
+    fprintf(stdout, "Found only whitespace, use \"()\" as the identity\n");
+    return false;
+  }
+
   // special case, identity
   if (s.substr(pos, 2).compare("()") == 0) {
     return true;
