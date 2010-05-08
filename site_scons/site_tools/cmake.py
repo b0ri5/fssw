@@ -11,7 +11,7 @@ from SCons.Script import *
 """
 def cmake_emitter(target, source, env):
   target_dir = target[0]
-  
+   
   # need to remove the source-tree directory to avoid a circular dependency
   new_targets = []
   
@@ -91,7 +91,12 @@ def set_cmake_generator(env):
   # use a cached file so build's don't always take forever since
   # system-information outputs a LOT
   if not os.path.isfile('.cmake_generator'):
-    p = sp.Popen(['cmake', '--system-information'], stdout=sp.PIPE, stderr=sp.PIPE)
+    try:
+      p = sp.Popen(['cmake', '--system-information'], stdout=sp.PIPE,
+                   stderr=sp.PIPE)
+    except:
+      return  # the config will detect if we don't have cmake
+    
     firstline = p.stdout.readline()
     f = open('.cmake_generator', 'w')
     f.write(firstline)

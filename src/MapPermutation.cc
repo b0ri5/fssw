@@ -267,10 +267,22 @@ bool MapPermutation::is_equal(const MapPermutation &g) const {
   return true;
 }
 
+// assumes a is nonnegative and converts it into a string
+// wrote this b/c none of the library functions that we could find
+// that do this are portable
 static string int2string(int a) {
-  char a_s[32];
-  _itoa_s(a, a_s, 32, 10);
-  return string(a_s);
+  string s;
+
+  if (a == 0) {
+    s = "0";
+  }
+
+  while (a > 0) {
+    s = string(1, '0' + a % 10) + s;
+    a /= 10;
+  }
+
+  return s;
 }
 
 string MapPermutation::to_string() const {
