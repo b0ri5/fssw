@@ -262,10 +262,9 @@ bool MapPermutation::is_equal(const MapPermutation &g) const {
   return true;
 }
 
-static string int2string(int a)
-{
+static string int2string(int a) {
   char a_s[32];
-  sprintf(a_s, "%d", a);
+  _itoa_s(a, a_s, 32, 10);
   return string(a_s);
 }
 
