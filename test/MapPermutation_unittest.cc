@@ -62,6 +62,40 @@ TEST_F(MapPermutationTest, FromStringMalformed) {
   EXPECT_TRUE(g.is_identity());
 }
 
+// copied from MapPermutation.cc, consider extracting into a utility helper
+static string int2string(int a) {
+  string s;
+
+  if (a == 0) {
+    s = "0";
+  }
+
+  while (a > 0) {
+    s = string(1, '0' + a % 10) + s;
+    a /= 10;
+  }
+
+  return s;
+}
+
+TEST_F(MapPermutationTest, FromStringBoundaryConditions) {
+  MapPermutation g;
+  string s;
+
+  // INT_MAX is one larger than the largest integer moved allowed
+  s = int2string(INT_MAX);
+
+  EXPECT_FALSE(g.from_string("(" + s));
+  EXPECT_TRUE(g.is_identity());
+
+  EXPECT_FALSE(g.from_string("(" + s + "0") );
+  EXPECT_TRUE(g.is_identity());
+
+  s = int2string(INT_MAX - 1);
+  EXPECT_TRUE(g.from_string("(" + s + " 0)"));
+  EXPECT_FALSE(g.is_identity());
+}
+
 TEST_F(MapPermutationTest, FromStringCheckMapping) {
   MapPermutation g;
 

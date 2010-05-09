@@ -124,6 +124,12 @@ bool parse_nonnegative_int(const string &s, int *pos_ptr, int *a_ptr) {
 
   // parse the integer and increment the position
   *a_ptr = atoi(s.substr(*pos_ptr, len).c_str());
+
+  // parsing MAX_INT indicates an error, so check that
+  if (*a_ptr == INT_MAX) {
+    return false;
+  }
+
   (*pos_ptr) += len;
 
   return true;
