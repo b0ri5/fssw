@@ -18,7 +18,8 @@ namespace fssw {
 
 class FundamentalSchreierTrees {
  public:
-  int sift(const Permutation &g, PermutationWord *h_ptr);
+  // try to un-fix as much of g as possible
+  int sift(const PermutationWord &g, PermutationWord *h_ptr);
 
  private:
   vector<int> base_;
