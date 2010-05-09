@@ -6,6 +6,8 @@
     Released under the Lesser General Public License v3.
 */
 
+#include <fssw/PermutationWord.h>
+
 #include <map>
 
 using std::map;
@@ -21,6 +23,11 @@ class SchreierTree {
  public:
   explicit SchreierTree(int root);
 
+  // adds the generator g to the tree, if we enlarge the orbit (the permutation
+  // is used) then return true, otherwise return false
+  // the object g should stay in scope as long as this tree does
+  bool add_generator(const PermutationWord &g);
+
   // returns if "a" is minimal in the orbit of root_
   bool is_minimal(int a);
 
@@ -28,7 +35,7 @@ class SchreierTree {
   bool contains(int a);
 
  private:
-  map<int, Permutation *> tree_;
+  map<int, PermutationWord *> tree_;
   int root_;
 };
 
