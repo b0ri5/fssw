@@ -18,8 +18,11 @@ class SchreierTreeTest : public ::testing::Test {
   // verify that "t" has the orbit correct by ensuring that it's equal to
   // orbit
   void verify_orbit(SchreierTree *t_ptr, const set<int> &orbit) {
+    PermutationWord w;
+
     // check one less than the smallest element
     EXPECT_FALSE(t_ptr->is_in_orbit(*orbit.begin() - 1) );
+    EXPECT_FALSE(t_ptr->path_to_root(*orbit.begin() - 1, &w));
 
     // check that "orbit" is in "t"'s orbit
     for (set<int>::iterator it = orbit.begin(); it != orbit.end(); ++it) {
@@ -27,12 +30,17 @@ class SchreierTreeTest : public ::testing::Test {
     }
 
     // check that one plus the last
-    EXPECT_FALSE(t_ptr->is_in_orbit(*orbit.rbegin() + 1) );
+    EXPECT_FALSE(t_ptr->is_in_orbit(*orbit.rbegin() + 1));
+    EXPECT_FALSE(t_ptr->path_to_root(*orbit.rbegin() + 1, &w));
 
     // check that "t"'s orbit is in "orbit"
     for (SchreierTree::iterator orbit_it = t_ptr->get_orbit_iterator();
          orbit_it.has_next(); ++orbit_it) {
       EXPECT_TRUE(orbit.find(*orbit_it) != orbit.end());
+
+      // check that path_to_root works as expected
+      EXPECT_TRUE(t_ptr->path_to_root(*orbit_it, &w));
+      EXPECT_EQ(w.get_image(*orbit_it), t_ptr->get_root());
     }
   }
 };
@@ -67,7 +75,7 @@ TEST_F(SchreierTreeTest, OrbitIteratorTests) {
 }
 
 // do a simple test of adding three generators
-TEST_F(SchreierTreeTest, AddGeneratorSmall) {
+TEST_F(SchreierTreeTest, BuildTreeSmall) {
   SchreierTree t;
   t.set_root(0);
   set<int> orbit;
@@ -90,7 +98,7 @@ TEST_F(SchreierTreeTest, AddGeneratorSmall) {
 
 // do the same as AddGeneratorSmall but incrementally (build_tree() after each
 // add_generator)
-TEST_F(SchreierTreeTest, AddGeneratorSmallIncremental) {
+TEST_F(SchreierTreeTest, BuildTreeSmallIncremental) {
   SchreierTree t;
   t.set_root(0);
   set<int> orbit;
@@ -120,40 +128,5 @@ TEST_F(SchreierTreeTest, AddGeneratorSmallIncremental) {
 
   verify_orbit(&t, orbit);
 }
-/*
-TEST_F(SchreierTreeTest, PathToRoot) {
-  SchreierTree t;
-  t.set_root(2);
 
-  PermutationWord w1, w2, w3;
-  ASSERT_TRUE(w1.from_string("(0 2)"));
-  EXPECT_TRUE(t.add_generator(w1));
-  ASSERT_TRUE(w2.from_string("(1 2 3 4)(5 6)"));
-  EXPECT_TRUE(t.add_generator(w2));
-  ASSERT_TRUE(w3.from_string("(0 2 5)"));
-  EXPECT_TRUE(t.add_generator(w3));
-
-  PermutationWord path;
-
-  // not in orbit
-  EXPECT_FALSE(t.path_to_root(6, &path));
-  EXPECT_EQ(path.to_string(), "()");
-
-  // root
-  EXPECT_TRUE(t.path_to_root(2, &path));
-  EXPECT_EQ(path.to_string(), "()");
-
-  // single edge
-  EXPECT_TRUE(t.path_to_root(0, &path));
-  EXPECT_EQ(path.to_string(), "(0 2)");
-
-  // multi-edge, repeated
-  EXPECT_TRUE(t.path_to_root(4, &path));
-  EXPECT_EQ(path.to_string(), "(1 2 3 4)(5 6)*(1 2 3 4)(5 6)");
-
-  // multi-edge, branching
-  EXPECT_TRUE(t.path_to_root(5, &path));
-  EXPECT_EQ(path.to_string(), "(0 2 5)*(0 2)");
-}
-*/
 }  // namespace fssw
