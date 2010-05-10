@@ -53,6 +53,10 @@ void SchreierTree::set_root(int root) {
   root_ = root;
 }
 
+int SchreierTree::get_root() {
+  return root_;
+}
+
 bool SchreierTree::build_tree() {
   bool tree_changed = false;
 

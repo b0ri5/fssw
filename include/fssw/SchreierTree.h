@@ -10,9 +10,11 @@
 
 #include <map>
 #include <deque>
+#include <vector>
 
 using std::map;
 using std::deque;
+using std::vector;
 
 namespace fssw {
 
@@ -58,6 +60,7 @@ class SchreierTree {
  public:
   // sets the root of the tree; this should be called right after creation
   void set_root(int root);
+  int get_root();
 
   // adds the generator g to the tree, if we enlarge the orbit (the permutation
   // is used) then return true, otherwise return false
