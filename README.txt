@@ -52,17 +52,24 @@ For Developers (G&E):
          $ python ${ProjDirPath}/bin/cpplint_all.py
          $ python ${ProjDirPath}/bin/run_unittests.py
 
-    Visual Studio (use TortoiseHG from commandline to update&commit, needs python installed on the system).
-	1) Create a new Makefile project for fssw; in the wizard, under Debug Configuration Settings, set:
-		Build command line: scons
-		Clean commands: scons -c
-Leave release configuration the same as the debug for now.
-	2) Create a second Makefile project, fssw_test, similarly. Under Debug Configuration Settings in the wizard put:
-		Build command line: 
-			python $(SolutionDir)/bin/run_unittests.py
-Remove all automatically created files/filters from fssw_test (the folders for Header files, Source Files etc and readme.txt).
-	3) Create a third Makefile project, fssw_lint, similar to fssw_test. Under Debug Configuration Settings in the wizard put:
-		Build command line: 
-			python $(SolutionDir)/bin/cpplint_all.py
-Remove all automatically created files/filters from fssw_lint (the folders for Header files, Source Files etc and readme.txt).
-	4) Do hg pull/hg update from commandline.
+    Visual Studio (use TortoiseHG from commandline to update&commit, needs
+    python installed on the system):
+      1) Create a new Makefile project for fssw; in the wizard, under Debug
+         Configuration Settings, set:
+           Build command line: scons
+           Clean commands: scons -c
+         Leave release configuration the same as the debug for now.
+         
+      2) Create a second Makefile project, fssw_test, similarly. Under Debug
+         Configuration Settings in the wizard put:
+           Build command line: python $(SolutionDir)/bin/run_unittests.py
+         Remove all automatically created files/filters from fssw_test
+         (the folders for Header files, Source Files etc and readme.txt).
+         
+      3) Create a third Makefile project, fssw_lint, similar to fssw_test. Under
+         Debug Configuration Settings in the wizard put:
+           Build command line: python $(SolutionDir)/bin/cpplint_all.py
+         Remove all automatically created files/filters from fssw_lint
+         (the folders for Header files, Source Files etc and readme.txt).
+         
+      4) Do hg pull/hg update from commandline.
