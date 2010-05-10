@@ -11,97 +11,77 @@ using std::deque;
 
 namespace fssw {
 
-bool OrbitIterator::has_next()
-{
-  return it_ != tree_ptr_->end();
+OrbitIterator::OrbitIterator() {
+}
+
+OrbitIterator::OrbitIterator(map<int, const PermutationWord *> *tree_ptr,
+    int root) {
+  tree_ptr_ = tree_ptr;
+  tree_it_ = tree_ptr->begin();
+  append(root);
+}
+
+bool OrbitIterator::has_next() {
+  return !smaller_elements_.empty() || tree_it_ != tree_ptr_->end();
+}
+
+void OrbitIterator::append(int a) {
+  if (tree_it_ == tree_ptr_->end() || a < tree_it_->first) {
+    smaller_elements_.push_back(a);
+  }
 }
 
 OrbitIterator &OrbitIterator::operator++() {
-  ++it_;
+  if (!smaller_elements_.empty()) {
+    smaller_elements_.pop_front();
+  } else {
+    ++tree_it_;
+  }
+
   return *this;
 }
 
 int OrbitIterator::operator*() const {
-  return it_->first;
+  if (!smaller_elements_.empty()) {
+    return smaller_elements_.front();
+  }
+
+  return tree_it_->first;
 }
 
 void SchreierTree::set_root(int root) {
   root_ = root;
 }
 
-void SchreierTree::expand_orbit(
-    const vector<const PermutationWord *> &generators,
-    deque<int> *new_elements_ptr) {
+bool SchreierTree::build_tree() {
+  bool tree_changed = false;
 
   // iterate over the elements in the orbit
   for (SchreierTree::iterator orbit_it = get_orbit_iterator();
       orbit_it.has_next(); ++orbit_it) {
     int a = *orbit_it;
 
-    // now iterate over the generators
-    for (int i = 0; i < generators.size(); i++) {
-      int inverse_image = generators[i]->get_image(a);
+    // iterate over the generators
+    for (vector<const PermutationWord *>::iterator gens_it =
+             generators_.begin(); gens_it != generators_.end();
+             ++gens_it) {
+      int inverse_image = (*gens_it)->get_inverse_image(a);
 
+      // if we found something not in the orbit
       if (!is_in_orbit(inverse_image)) {
-        tree_[inverse_image] = generators[i];
+        tree_changed = true;
+        tree_[inverse_image] = *gens_it;
+        orbit_it.append(inverse_image);  // be sure to tell the orbit iterator
       }
     }
-
-    // couldn't figure out how to get this to compile... kept getting const
-    // issues
-    /*for (vector<const PermutationWord *>::const_iterator gens_it =
-             generators.begin(); gens_it != generators.end();
-             ++gens_it) {
-      //int image = gens_it->get_image(a);
-    }*/
   }
+
+  return tree_changed;
 }
 
 
-bool SchreierTree::add_generator(const PermutationWord &g) {
-  deque<int> new_elements;
-
-  return false;
-/*
-  // find the "new" elements in the orbit provided by g
-  for (SchreierTree::iterator it = get_orbit_iterator(); it.has_next(); ++it) {
-    int a = *it;
-    int inverse_image = g.get_inverse_image(a);
-
-    // add new elements in the cycle containing "a" to the tree
-    while (inverse_image != a) {
-      if (!is_in_orbit(inverse_image)) {
-        tree_[inverse_image] = &g;
-        new_elements.push_back(inverse_image);
-      }
-      inverse_image = g.get_inverse_image(inverse_image);
-    }
-  }
-
+void SchreierTree::add_generator(const PermutationWord &g) {
   generators_.push_back(&g);
-
-  // now expand the orbit from new_elements
-  while (new_elements.size() > 0) {
-    int a = new_elements.front();
-    new_elements.pop_front();
-
-    for (vector<const PermutationWord *>::iterator generators_it = \
-         generators_.begin(); generators_it != generators_.end();
-         ++generators_it)
-    {
-      for (SchreierTree::iterator it = get_orbit_iterator(); it.has_next();
-              ++it) {
-        int a = *it;
-        int inverse_image = g.get_inverse_image(a);
-
-        while (inverse_image != a) {
-          if (!is_in_orbit(inverse_image)) {
-            tree_[inverse_image] =
-          }
-        }
-      }
-    }
-  }*/
 }
 
 bool SchreierTree::is_in_orbit(int a) {
@@ -125,12 +105,7 @@ bool SchreierTree::path_to_root(int a, PermutationWord *path_ptr) {
 }
 
 OrbitIterator SchreierTree::get_orbit_iterator() {
-  OrbitIterator it;
-
-  it.tree_ptr_ = &tree_;
-  it.it_ = tree_.begin();
-
-  return it;
+  return OrbitIterator(&tree_, root_);
 }
 
 }  // namespace fssw

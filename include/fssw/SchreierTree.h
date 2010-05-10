@@ -23,12 +23,30 @@ namespace fssw {
 class OrbitIterator {
  public:
   friend class SchreierTree;
+
+  OrbitIterator();
+  OrbitIterator(map<int, const PermutationWord *> *tree_ptr, int root);
+
+  // returns true if there's more to be iterated over
   bool has_next();
+
+  // appends the value "a" to the iterator, this is useful when changing the
+  // schreier tree during iteration. This only appends elements if they are
+  // smaller than where we are in the iterator already, then consumes them
+  // before incrementing it_
+  void append(int a);
+
+  // advances thsi iterator
   OrbitIterator &operator++();
+
+  // returns the current orbit element
   int operator*() const;
  private:
   map<int, const PermutationWord *> *tree_ptr_;
-  map<int, const PermutationWord *>::const_iterator it_;
+  map<int, const PermutationWord *>::const_iterator tree_it_;
+
+  // a list of elements smaller than where we currently are
+  deque<int> smaller_elements_;
 };
 
 /*
@@ -44,7 +62,7 @@ class SchreierTree {
   // adds the generator g to the tree, if we enlarge the orbit (the permutation
   // is used) then return true, otherwise return false
   // the object g should stay in scope as long as this tree does
-  bool add_generator(const PermutationWord &g);
+  void add_generator(const PermutationWord &g);
 
   // builds the tree given the set of generators
   bool build_tree();
@@ -62,9 +80,6 @@ class SchreierTree {
   OrbitIterator get_orbit_iterator();
 
  private:
-
-  void expand_orbit(const vector<const PermutationWord *> &generators,
-      deque<int> *new_elements_ptr);
 
   map<int, const PermutationWord *> tree_;
   int root_;
