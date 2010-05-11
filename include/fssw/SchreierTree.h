@@ -21,7 +21,8 @@ namespace fssw {
 
 class SchreierTree {
  public:
-  explicit SchreierTree(int root);
+  // sets the root of the tree; this should be called right after creation
+  void set_root(int root);
 
   // adds the generator g to the tree, if we enlarge the orbit (the permutation
   // is used) then return true, otherwise return false
@@ -32,10 +33,13 @@ class SchreierTree {
   bool is_minimal(int a);
 
   // returns if "a" is in the orbit of root_
-  bool contains(int a);
+  bool is_in_orbit(int a);
+
+  // returns false if a is not in the orbit
+  bool path_to_root(int a, PermutationWord *path_ptr);
 
  private:
-  map<int, PermutationWord *> tree_;
+  map<int, const PermutationWord *> tree_;
   int root_;
 };
 
