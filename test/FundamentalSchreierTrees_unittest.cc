@@ -113,6 +113,11 @@ TEST_F(FundamentalSchreierTreesTest, StripSmall) {
   g.from_string("(0 2 1)");
   EXPECT_EQ(1, t.strip(g, &h));
   EXPECT_TRUE(h.is_identity());
+
+  // try to sift (0 1 2), can strip to identity or (0)(1 2)
+  g.from_string("(0 1 2)");
+  EXPECT_EQ(1, t.strip(g, &h));
+  EXPECT_EQ(0, h.get_image(0));
 }
 
 }  // namespace fssw

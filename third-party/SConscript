@@ -6,6 +6,6 @@ cmake_rv = env.CMake('gtest-build', 'gtest-1.5.0')
 libgtest = env.CMakeLib(['gtest', 'gtest_main'], 'gtest-build')
 env.Depends(libgtest, cmake_rv)
 
-env['GTEST_LIB'] = os.path.join('third-party', str(libgtest[0].dir))
+env['GTEST_LIB'] = os.path.join('#', 'third-party', str(libgtest[0].dir))
 
 Export('libgtest')
