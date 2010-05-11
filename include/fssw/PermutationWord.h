@@ -21,14 +21,25 @@ namespace fssw {
 class MapPermutation;
 
 /*
+ * Static allocation class for MapPermutation objects.
+ */
+class MapPermutationAllocator {
+ public:
+  static MapPermutation* new_permutation();
+  static void clear_memory();
+
+ private:
+  static vector<MapPermutation*> permutations_;
+};
+
+/*
  * Single permutation element for the PermutationWord.
  */
 struct PermutationPart {
-  MapPermutation g;
+  const MapPermutation *g_ptr;
   bool is_inverse;
 
-  PermutationPart();
-  PermutationPart(const MapPermutation &g, bool is_inverse);
+  PermutationPart(const MapPermutation *g_ptr, bool is_inverse);
   bool from_string(string s);
 };
 
