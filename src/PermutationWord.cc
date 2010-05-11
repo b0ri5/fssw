@@ -7,20 +7,38 @@
 
 namespace fssw {
 
-PermutationPart::PermutationPart()
-: g(), is_inverse(false) {
+vector<MapPermutation*> MapPermutationAllocator::permutations_;
+
+MapPermutation* MapPermutationAllocator::new_permutation() {
+  MapPermutation *g = new MapPermutation();
+  permutations_.push_back(g);
+  return g;
 }
 
-PermutationPart::PermutationPart(const MapPermutation &g_, bool is_inverse_)
-: g(g_), is_inverse(is_inverse_) {
+void MapPermutationAllocator::clear_memory() {
+  for (vector<MapPermutation*>::iterator perm_it = permutations_.begin();
+      perm_it != permutations_.end(); ++perm_it) {
+    delete *perm_it;
+  }
+}
+
+PermutationPart::PermutationPart(const MapPermutation *g_ptr_, bool is_inverse_)
+: g_ptr(g_ptr_), is_inverse(is_inverse_) {
 }
 
 bool PermutationPart::from_string(string s) {
+  MapPermutation *new_g_ptr = MapPermutationAllocator::new_permutation();
+
   size_t power_pos = s.find("^{-1}");
 
   // if positive, the whole string should be one permutation
   if (power_pos == string::npos) {
-    return g.from_string(s);
+    if (new_g_ptr->from_string(s)) {
+      g_ptr = new_g_ptr;
+      return true;
+    } else {
+      return false;
+    }
   }
 
   // if inverse, there should be no other characters after "^{-1}"
@@ -32,16 +50,20 @@ bool PermutationPart::from_string(string s) {
   // read inverse permutation
   is_inverse = true;
   string perm_s = s.substr(0, power_pos);
-  return g.from_string(perm_s);
+  if (new_g_ptr->from_string(perm_s)) {
+    g_ptr = new_g_ptr;
+    return true;
+  }
+  return false;
 }
 
 int PermutationWord::get_image(int a) const {
   for (vector<PermutationPart>::const_iterator perm_it =
       permutations_.begin(); perm_it != permutations_.end(); ++perm_it) {
     if (!perm_it->is_inverse) {
-      a = perm_it->g.get_image(a);
+      a = perm_it->g_ptr->get_image(a);
     } else {
-      a = perm_it->g.get_inverse_image(a);
+      a = perm_it->g_ptr->get_inverse_image(a);
     }
   }
   return a;
@@ -51,9 +73,9 @@ int PermutationWord::get_inverse_image(int a) const {
   for (vector<PermutationPart>::const_iterator perm_it = permutations_.begin();
       perm_it != permutations_.end(); ++perm_it) {
     if (!perm_it->is_inverse) {
-      a = perm_it->g.get_inverse_image(a);
+      a = perm_it->g_ptr->get_inverse_image(a);
     } else {
-      a = perm_it->g.get_image(a);
+      a = perm_it->g_ptr->get_image(a);
     }
   }
   return a;
@@ -106,7 +128,7 @@ bool PermutationWord::from_string(string s) {
     // read current permutation element
     string perm_s = s.substr(0, compose_pos);
 
-    PermutationPart perm;
+    PermutationPart perm(MapPermutationAllocator::new_permutation(), false);
     if (!perm.from_string(perm_s)) {
       return false;
     }
@@ -119,7 +141,7 @@ bool PermutationWord::from_string(string s) {
   }
 
   // push the last permutation
-  PermutationPart perm;
+  PermutationPart perm(MapPermutationAllocator::new_permutation(), false);
   if (!perm.from_string(s)) {
     return false;
   }
@@ -137,13 +159,13 @@ string PermutationWord::to_string() const {
 
   // print first element
   vector<PermutationPart>::const_iterator part_it = permutations_.begin();
-  s += part_it->g.to_string();
+  s += part_it->g_ptr->to_string();
   s += part_it->is_inverse ? "^{-1}" : "";
   ++part_it;
 
   // rest of the elements
   while (part_it != permutations_.end()) {
-    s += "*" + part_it->g.to_string();
+    s += "*" + part_it->g_ptr->to_string();
     s += part_it->is_inverse ? "^{-1}" : "";
     ++part_it;
   }
@@ -153,12 +175,12 @@ string PermutationWord::to_string() const {
 
 void PermutationWord::compose(const MapPermutation &g) {
   // does not check last permutation to contract g*g^{-1} to identity
-  permutations_.push_back(PermutationPart(g, false));
+  permutations_.push_back(PermutationPart(&g, false));
 }
 
 void PermutationWord::compose_inverse(const MapPermutation &g) {
   // does not check last permutation to contract g*g^{-1} to identity
-  permutations_.push_back(PermutationPart(g, true));
+  permutations_.push_back(PermutationPart(&g, true));
 }
 
 }  // namespace fssw
