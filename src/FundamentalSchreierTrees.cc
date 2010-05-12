@@ -18,9 +18,7 @@ void FundamentalSchreierTrees::append_to_base(int b) {
 }
 
 void FundamentalSchreierTrees::add_generator(const PermutationWord &w) {
-  int i = 0;
-
-  while (i < base_.size()) {
+  for (int i = 0; i < base_.size(); ++i) {
     trees_[i]->add_generator(w);
 
     int b = base_[i];
@@ -28,16 +26,7 @@ void FundamentalSchreierTrees::add_generator(const PermutationWord &w) {
     if (w.get_image(b) != b) {
       break;
     }
-
-    ++i;
   }
-}
-
-void FundamentalSchreierTrees::add_generator(const MapPermutation &g) {
-  PermutationWord w;
-  w.compose(g);
-
-  add_generator(w);
 }
 
 int FundamentalSchreierTrees::strip(const PermutationWord &g,
@@ -45,24 +34,34 @@ int FundamentalSchreierTrees::strip(const PermutationWord &g,
   h_ptr->clear();
   h_ptr->compose(g);
 
-  int i = 0;
-
-  while (i < base_.size()) {
+  for (int i = 0; i < base_.size(); ++i) {
     int a = h_ptr->get_image(base_.at(i));
     SchreierTree *tree_ptr = trees_.at(i);
 
     if (!tree_ptr->is_in_orbit(a)) {
       return i;
-    } else {
-      PermutationWord path;
-
-      tree_ptr->path_to_root(a, &path);
-      h_ptr->compose(path);
     }
-    ++i;
+
+    PermutationWord path;
+    tree_ptr->path_to_root(a, &path);
+    h_ptr->compose(path);
   }
 
-  return i;
+  return base_.size();
+}
+
+const SchreierTree* FundamentalSchreierTrees::getTree(int i) {
+  if (i < 0 || i >= trees_.size()) {
+    return NULL;
+  }
+  return trees_[i];
+}
+
+int FundamentalSchreierTrees::getBase(int i) {
+  if (i < 0 || i >= base_.size()) {
+    return -1;
+  }
+  return base_[i];
 }
 
 void FundamentalSchreierTrees::build_trees() {
