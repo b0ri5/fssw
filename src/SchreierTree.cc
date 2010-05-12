@@ -11,8 +11,7 @@ using std::deque;
 
 namespace fssw {
 
-bool OrbitIterator::has_next()
-{
+bool OrbitIterator::has_next() {
   return it_ != tree_ptr_->end();
 }
 
