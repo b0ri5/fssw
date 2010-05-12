@@ -82,6 +82,8 @@ class SchreierTree {
   typedef OrbitIterator iterator;
   OrbitIterator get_orbit_iterator();
 
+  bool has_generator(const PermutationWord &g) const;
+
  private:
 
   map<int, const PermutationWord *> tree_;
