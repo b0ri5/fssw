@@ -5,12 +5,24 @@ Import('env lib lib_name libsuffix libgtest')
 # get a list of source files
 unittest_src = set()
 
+CPPPATH = ['#include']
+
+# for nicer looking commands (no -L.)
+if env['GTEST_INCLUDE'] != '':
+  CPPPATH.append(env['GTEST_INCLUDE'])
+  
+LIBPATH = ['#/lib']
+
+if env['GTEST_LIB'] != '':
+  LIBPATH.append(env['GTEST_LIB'])
+
 for f in env.Glob('*.cc'):
   path, file = os.path.split(str(f) )
   name, ext = os.path.splitext(file)
+  
   unittest = env.Program(file,
-              CPPPATH = ['#include', env['GTEST_INCLUDE']],
-						  LIBPATH = ['#/lib', '#/' + env['GTEST_LIB']],
+              CPPPATH = CPPPATH,
+						  LIBPATH = LIBPATH,
 						  LIBS = [lib_name, 'gtest', 'gtest_main'])
   unittest_name = '%s%s%s' % (name, libsuffix, env['PROGSUFFIX'])
   

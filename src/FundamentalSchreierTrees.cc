@@ -65,4 +65,10 @@ int FundamentalSchreierTrees::strip(const PermutationWord &g,
   return i;
 }
 
+void FundamentalSchreierTrees::build_trees() {
+  for (int i = 0; i < trees_.size(); i++) {
+    trees_.at(i)->build_tree();
+  }
+}
+
 }  // namespace fssw

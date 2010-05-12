@@ -16,7 +16,7 @@ has_gtest = conf.CheckLibWithHeader('gtest', 'gtest/gtest.h', 'C++')
 
 # only check for cmake if needed
 if not has_gtest:
-  print '  gtest not found, checking for cmake to build it'
+  print '  gtest not installed, will try to use local copy'
   has_cmake = conf.CheckExecutable('cmake')
   if not has_cmake:
     print '  cmake not found, download it at http://www.cmake.org/'
