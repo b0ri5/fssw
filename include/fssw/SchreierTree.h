@@ -10,6 +10,7 @@
 
 #include <map>
 #include <deque>
+#include <vector>
 
 using std::map;
 using std::deque;
