@@ -25,7 +25,7 @@ class SchreierTreeTest : public ::testing::Test {
     EXPECT_FALSE(t_ptr->path_to_root(*orbit.begin() - 1, &w));
 
     // check that "orbit" is in "t"'s orbit
-    for (set<int>::iterator it = orbit.begin(); it != orbit.end(); ++it) {
+    for (set<int>::const_iterator it = orbit.begin(); it != orbit.end(); ++it) {
       EXPECT_TRUE(t_ptr->is_in_orbit(*it));
     }
 
