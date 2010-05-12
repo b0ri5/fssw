@@ -7,6 +7,8 @@
 
 #include <gtest/gtest.h>
 
+#include <fssw/PermutationWord.h>
+
 namespace fssw {
 
 class FundamentalSchreierTreesTest : public ::testing::Test {
@@ -16,6 +18,17 @@ class FundamentalSchreierTreesTest : public ::testing::Test {
 TEST_F(FundamentalSchreierTreesTest, Instantiation) {
   FundamentalSchreierTrees t;
   t.append_to_base(0);
+}
+
+TEST_F(FundamentalSchreierTreesTest, AddGenerator) {
+  FundamentalSchreierTrees t;
+  t.append_to_base(0);
+  t.append_to_base(1);
+
+  PermutationWord w;
+  w.from_string("(0 1)");
+
+  t.add_generator(w);
 }
 
 }  // namespace fssw
