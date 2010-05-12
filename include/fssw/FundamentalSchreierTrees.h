@@ -33,8 +33,9 @@ class FundamentalSchreierTrees {
   // adds "w" to each schreier tree up until "w" moves a base element
   void add_generator(const PermutationWord &w);
 
-  // wraps MapPermutation in a PermutationWord of length 1
-  void add_generator(const MapPermutation &g);
+  // accessors used in testing
+  const SchreierTree* getTree(int i);
+  int getBase(int i);
 
  private:
   vector<int> base_;
