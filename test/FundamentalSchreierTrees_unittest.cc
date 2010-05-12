@@ -31,7 +31,7 @@ TEST_F(FundamentalSchreierTreesTest, AddGenerator) {
 
   // w does not move a base element
   PermutationWord w1;
-  w1.from_string("()");  
+  w1.from_string("()");
   t.add_generator(w1);
   // should show up in both trees
   EXPECT_TRUE(t.getTree(0)->has_generator(w1));
@@ -39,7 +39,7 @@ TEST_F(FundamentalSchreierTreesTest, AddGenerator) {
 
   // w moves the first base element
   PermutationWord w2;
-  w2.from_string("(0 2)");  
+  w2.from_string("(0 2)");
   t.add_generator(w2);
   // should show up in the first tree only
   EXPECT_TRUE(t.getTree(0)->has_generator(w2));
@@ -47,18 +47,11 @@ TEST_F(FundamentalSchreierTreesTest, AddGenerator) {
 
   // w moves the second base element
   PermutationWord w3;
-  w3.from_string("(1 3)");  
+  w3.from_string("(1 3)");
   t.add_generator(w3);
   // should show up in both trees
   EXPECT_TRUE(t.getTree(0)->has_generator(w3));
   EXPECT_TRUE(t.getTree(1)->has_generator(w3));
-}
-
-TEST_F(FundamentalSchreierTreesTest, StripGenerator) {
-  FundamentalSchreierTrees t;
-  t.append_to_base(0);
-  t.append_to_base(1);
-  // TODO: build simple strip example here ...
 }
 
 TEST_F(FundamentalSchreierTreesTest, StripSmallest) {
