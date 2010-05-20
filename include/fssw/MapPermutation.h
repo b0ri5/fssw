@@ -47,6 +47,8 @@ class MapPermutation : public Permutation {
 
   string to_string() const;
 
+  friend class PermutationWord;
+
  private:
   map<int, int> images_;
   map<int, int> inverse_images_;

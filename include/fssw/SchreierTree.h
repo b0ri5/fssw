@@ -38,7 +38,7 @@ class OrbitIterator {
   // before incrementing it_
   void append(int a);
 
-  // advances thsi iterator
+  // advances iterator
   OrbitIterator &operator++();
 
   // returns the current orbit element
@@ -83,6 +83,8 @@ class SchreierTree {
   OrbitIterator get_orbit_iterator();
 
   bool has_generator(const PermutationWord &g) const;
+
+  friend class FundamentalSchreierTrees;
 
  private:
 

@@ -44,7 +44,7 @@ TEST_F(PermutationWordTest, FromString) {
   EXPECT_TRUE(w.is_identity());
 
   EXPECT_FALSE(w.from_string("(0 2 1)^{-1}*  **(1 2)"));
-  EXPECT_TRUE(w.is_identity());
+  EXPECT_TRUE(w.is_identity()) << w.to_string();
 
   EXPECT_FALSE(w.from_string("**(0 2 1)^{-1}*(1 2)"));
   EXPECT_TRUE(w.is_identity());
@@ -98,6 +98,49 @@ TEST_F(PermutationWordTest, ComposeWordAndInverse) {
   w.compose_inverse(w2);
   w.compose_inverse(w1);
   EXPECT_EQ(w.to_string(), "(2 3)*(1 2)*(0 2)^{-1}");
+}
+
+TEST_F(PermutationWordTest, GetFirstMovedElement) {
+  PermutationWord w;
+
+  EXPECT_EQ(w.get_first_moved_element(), -1);
+  ASSERT_TRUE(w.from_string("(0 1)"));
+
+  EXPECT_EQ(w.get_first_moved_element(), 0);
+  ASSERT_TRUE(w.from_string("(0 1)*(1 0)"));
+
+  EXPECT_EQ(w.get_first_moved_element(), -1);
+  ASSERT_TRUE(w.from_string("(0 1)*(1 0)*(2 3)"));
+
+  EXPECT_EQ(w.get_first_moved_element(), 2);
+  ASSERT_TRUE(w.from_string("(0 1)*(0 2 1)*(2 1)"));
+
+  EXPECT_EQ(w.get_first_moved_element(), -1);
+}
+
+TEST_F(PermutationWordTest, IsEquivalent) {
+  PermutationWord w1, w2;
+
+  // basic cases: identity
+  EXPECT_TRUE(w1.is_equivalent(w2));
+  EXPECT_TRUE(w2.is_equivalent(w1));
+
+  // single permutation
+  ASSERT_TRUE(w1.from_string("(0 1)"));
+  ASSERT_TRUE(w2.from_string("(0 1)"));
+  EXPECT_TRUE(w1.is_equivalent(w2));
+  EXPECT_TRUE(w2.is_equivalent(w1));
+
+  // composed permutations
+  ASSERT_TRUE(w1.from_string("(0 1)*(1 2)"));
+  ASSERT_TRUE(w2.from_string("(0 2 1)"));
+  EXPECT_TRUE(w1.is_equivalent(w2));
+
+  // non-equiv
+  ASSERT_TRUE(w1.from_string("(0 1 2)"));
+  ASSERT_TRUE(w2.from_string("(0 3)"));
+  EXPECT_FALSE(w1.is_equivalent(w2));
+  EXPECT_FALSE(w2.is_equivalent(w1));
 }
 
 }  // namespace fssw

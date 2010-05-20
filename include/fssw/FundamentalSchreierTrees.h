@@ -37,6 +37,11 @@ class FundamentalSchreierTrees {
   // calls build_tree() on each schreier tree
   void build_trees();
 
+  int schreier_sims(const vector<const PermutationWord> &generators);
+
+  // ensures that base_ is a base for the current group
+  bool expand_base(const PermutationWord &g);
+
  private:
   vector<int> base_;
   vector<SchreierTree *> trees_;

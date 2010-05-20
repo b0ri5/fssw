@@ -70,4 +70,85 @@ void FundamentalSchreierTrees::build_trees() {
   }
 }
 
+bool FundamentalSchreierTrees::expand_base(const PermutationWord &g) {
+  // ensures one condition that B is a base: the only permutation that does
+  // not move any element of the base should be the identity;
+  for (int i = 0; i <= base_.size(); ++i) {
+    int b = base_[i];
+
+    if (g.get_image(b) != b) {
+      // g moves at least one base element
+      return false;
+    }
+  }
+
+  // g is in G_(b1,...,bk)
+  int a = g.get_first_moved_element();
+
+  // if g is the identity, base does not need to be expanded
+  if (a == -1) {
+    return false;
+  }
+
+  append_to_base(a);
+  return true;
+}
+
+int FundamentalSchreierTrees::schreier_sims(
+  const vector<const PermutationWord> &generators) {
+  // add elements to the base until there are no generators in G_(b1,...,bk)
+  vector<const PermutationWord>::const_iterator g_it;
+
+  for (g_it = generators.begin(); g_it != generators.end(); ++g_it) {
+    expand_base(*g_it);
+  }
+
+  // set up schreier trees
+  for (g_it = generators.begin(); g_it != generators.end(); ++g_it) {
+    add_generator(*g_it);
+  }
+
+  build_trees();
+
+  // now: H^(k+1) = e
+
+  int i = base_.size() - 1;
+
+  while (i >= 0) {
+    // test condition that H^(i)_{b_i} = H^(i+1)
+    SchreierTree *t_i = trees_[i];
+    for (OrbitIterator orbit_it = t_i->get_orbit_iterator();
+      orbit_it.has_next(); ++orbit_it) {
+      int a = *orbit_it;
+
+      // find g such that: b_i^(g_a) = a
+      PermutationWord g_a;
+      t_i->path_to_root(a, &g_a);
+
+      vector<const PermutationWord*> *S_i = &t_i->generators_;
+
+      for (vector<const PermutationWord*>::const_iterator s_it = S_i->begin();
+        s_it != S_i->end(); ++s_it) {
+        const PermutationWord *s = *s_it;
+        int as = s->get_image(a);
+
+        // find g_as such that: b_i^(g_as) = a^s
+        PermutationWord g_as;
+        t_i->path_to_root(as, &g_as);
+
+        // ga_s = g_a * s
+        PermutationWord ga_s;
+        ga_s.compose(g_a);
+        ga_s.compose(*s);
+
+        if (!ga_s.is_equivalent(g_as)) {
+          // TODO:...
+        }
+      }
+    }
+  }
+
+  return 0;
+}
+
 }  // namespace fssw

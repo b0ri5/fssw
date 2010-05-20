@@ -65,9 +65,12 @@ class PermutationWord : public Permutation {
 
   bool is_identity() const;
   void evaluate(MapPermutation *g_ptr) const;
+  bool is_equivalent(const PermutationWord &w) const;
 
   bool from_string(string s);
   string to_string() const;
+
+  int get_first_moved_element() const;
 
  private:
   vector<PermutationPart> permutations_;

@@ -5,6 +5,10 @@
 
 #include <fssw/PermutationWord.h>
 
+#include <set>
+
+using std::set;
+
 namespace fssw {
 
 vector<MapPermutation*> MapPermutationAllocator::permutations_;
@@ -81,6 +85,37 @@ int PermutationWord::get_inverse_image(int a) const {
   return a;
 }
 
+int PermutationWord::get_first_moved_element() const {
+  // this basically checks for identity more efficiently;
+  // returns first moved element or -1 if none are moved.
+  set<int> moved_elements;
+
+  for (vector<PermutationPart>::const_iterator part_it = permutations_.begin();
+    part_it != permutations_.end(); ++part_it) {
+    const map<int, int> *images_ptr = &(part_it->g_ptr->images_);
+
+    for (map<int, int>::const_iterator images_it = images_ptr->begin();
+      images_it != images_ptr->end(); ++images_it) {
+      int element = images_it->first;
+
+      if (moved_elements.find(element) != moved_elements.end()) {
+        continue;
+      }
+
+      // element is moved for the first time in this MapPermutation,
+      // check if it remains moved at the end of the word:
+      if (get_image(element) != element) {
+        return element;
+      }
+
+      moved_elements.insert(element);
+    }
+  }
+
+  // permutation was in fact identity
+  return -1;
+}
+
 void PermutationWord::compose(const PermutationWord &g) {
   // appends the list of permutations from g to this
   // does not check last permutation to contract g*g^{-1} to identity
@@ -113,6 +148,25 @@ bool PermutationWord::is_identity() const {
 }
 
 void PermutationWord::evaluate(MapPermutation *g_ptr) const {
+  g_ptr->clear();
+  set<int> moved_elements;
+
+  for (vector<PermutationPart>::const_iterator part_it = permutations_.begin();
+    part_it != permutations_.end(); ++part_it) {
+    const map<int, int> *images_ptr = &(part_it->g_ptr->images_);
+
+    for (map<int, int>::const_iterator images_it = images_ptr->begin();
+      images_it != images_ptr->end(); ++images_it) {
+      int element = images_it->first;
+
+      if (moved_elements.find(element) == moved_elements.end()) {
+        // element is moved for the first time in this MapPermutation,
+        // find its image in the word:
+        g_ptr->set_image(element, get_image(element));
+        moved_elements.insert(element);
+      }
+    }
+  }
 }
 
 bool PermutationWord::from_string(string s) {
@@ -130,6 +184,7 @@ bool PermutationWord::from_string(string s) {
 
     PermutationPart perm(MapPermutationAllocator::new_permutation(), false);
     if (!perm.from_string(perm_s)) {
+      clear();
       return false;
     }
 
@@ -143,6 +198,7 @@ bool PermutationWord::from_string(string s) {
   // push the last permutation
   PermutationPart perm(MapPermutationAllocator::new_permutation(), false);
   if (!perm.from_string(s)) {
+    clear();
     return false;
   }
 
@@ -181,6 +237,13 @@ void PermutationWord::compose(const MapPermutation &g) {
 void PermutationWord::compose_inverse(const MapPermutation &g) {
   // does not check last permutation to contract g*g^{-1} to identity
   permutations_.push_back(PermutationPart(&g, true));
+}
+
+bool PermutationWord::is_equivalent(const PermutationWord &w) const {
+  MapPermutation a, b;
+  w.evaluate(&a);
+  evaluate(&b);
+  return a.is_equal(b);
 }
 
 }  // namespace fssw
