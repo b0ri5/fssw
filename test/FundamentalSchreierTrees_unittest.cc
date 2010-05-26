@@ -20,38 +20,41 @@ TEST_F(FundamentalSchreierTreesTest, Instantiation) {
   FundamentalSchreierTrees t;
   t.append_to_base(2);
 
-  EXPECT_EQ(t.getBase(0), 2);
-  EXPECT_EQ(t.getBase(1), -1);
+  EXPECT_EQ(t.get_base(0), 2);
+  EXPECT_EQ(t.get_base(1), -1);
 }
 
-TEST_F(FundamentalSchreierTreesTest, AddGenerator) {
+TEST_F(FundamentalSchreierTreesTest, DistributeGenerator) {
   FundamentalSchreierTrees t;
+
   t.append_to_base(0);
   t.append_to_base(1);
+  ASSERT_EQ(2, t.get_base_length());
 
-  // w does not move a base element
-  PermutationWord w1;
-  w1.from_string("()");
-  t.add_generator(w1);
+  // the identity should go in every tree
+  MapPermutation s;
+  s.from_string("()");
+  t.add_generator(s);
+  t.distribute_generators();
   // should show up in both trees
-  EXPECT_TRUE(t.getTree(0)->has_generator(w1));
-  EXPECT_TRUE(t.getTree(1)->has_generator(w1));
+  EXPECT_TRUE(t.get_tree(0)->has_generator(s));
+  EXPECT_TRUE(t.get_tree(1)->has_generator(s));
 
-  // w moves the first base element
-  PermutationWord w2;
-  w2.from_string("(0 2)");
-  t.add_generator(w2);
+  // s moves the first base element
+  s.from_string("(0 2)");
+  t.add_generator(s);
+  t.distribute_generators();
   // should show up in the first tree only
-  EXPECT_TRUE(t.getTree(0)->has_generator(w2));
-  EXPECT_FALSE(t.getTree(1)->has_generator(w2));
+  EXPECT_TRUE(t.get_tree(0)->has_generator(s));
+  EXPECT_FALSE(t.get_tree(1)->has_generator(s));
 
-  // w moves the second base element
-  PermutationWord w3;
-  w3.from_string("(1 3)");
-  t.add_generator(w3);
+  // s moves the second base element
+  s.from_string("(1 3)");
+  t.add_generator(s);
+  t.distribute_generators();
   // should show up in both trees
-  EXPECT_TRUE(t.getTree(0)->has_generator(w3));
-  EXPECT_TRUE(t.getTree(1)->has_generator(w3));
+  EXPECT_TRUE(t.get_tree(0)->has_generator(s));
+  EXPECT_TRUE(t.get_tree(1)->has_generator(s));
 }
 
 TEST_F(FundamentalSchreierTreesTest, StripSmallest) {
@@ -81,14 +84,15 @@ TEST_F(FundamentalSchreierTreesTest, StripSmall) {
   PermutationWord h;
 
   // test final return when something actually happens
-  PermutationWord w1;
-  w1.from_string("(0 1 2)");
-  PermutationWord w2;
-  w2.from_string("(0 1)");
+  MapPermutation s;
+  s.from_string("(0 1 2)");
+  t.add_generator(s);
+  s.from_string("(0 1)");
+  t.add_generator(s);
   t.append_to_base(0);
-  t.add_generator(w1);
-  t.add_generator(w2);
-  t.build_trees();
+
+  t.distribute_generators();
+  ASSERT_TRUE(t.build_trees());
   // tree can be either {2 : w1, 1 : w2} or {1 : w1, 2 : w1}
 
   // try to sift (0 2)

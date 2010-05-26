@@ -67,7 +67,7 @@ class SchreierTree {
   // the object g should stay in scope as long as this tree does
   void add_generator(const PermutationWord &g);
 
-  // builds the tree given the set of generators
+  // builds the tree, returns true if the tree changes
   bool build_tree();
 
   // returns if "a" is minimal in the orbit of root_
@@ -82,7 +82,7 @@ class SchreierTree {
   typedef OrbitIterator iterator;
   OrbitIterator get_orbit_iterator();
 
-  bool has_generator(const PermutationWord &g) const;
+  bool has_generator(const MapPermutation &g) const;
 
  private:
 

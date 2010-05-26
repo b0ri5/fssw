@@ -22,24 +22,43 @@ class SchreierTree;
 
 class FundamentalSchreierTrees {
  public:
-  // tries to reduce g to identity through the current tree structure
-  int strip(const PermutationWord &g, PermutationWord* h_ptr);
 
+  ~FundamentalSchreierTrees();
+
+  // tries to reduce g to identity through the current tree structure
+  int strip(const PermutationWord &g, PermutationWord *h_ptr);
+
+  // simply append, nothing else
   void append_to_base(int b);
 
-  // adds "w" to each schreier tree up until "w" moves a base element
-  void add_generator(const PermutationWord &w);
+  // append and also extend anyone coming from the previous one
+  void extend_base(int b);
+
+  // adds "g" as an original generator; makes a copy of "g"
+  void add_generator(const MapPermutation &g);
+  void add_generator_no_copy(const MapPermutation &g);
 
   // accessors used in testing
-  const SchreierTree* getTree(int i);
-  int getBase(int i);
+  const SchreierTree *get_tree(int i);
+  int get_base(int i);
+  int get_base_length();
 
-  // calls build_tree() on each schreier tree
-  void build_trees();
+  // calls build_tree() on each schreier tree, returns true if a tree changed
+  bool build_trees();
+
+  // distribute each generator through the trees
+  void distribute_generators();
 
  private:
+  // adds "w" to each schreier tree up until "w" moves a base element
+  void distribute_generator(const PermutationWord &w);
+
   vector<int> base_;
   vector<SchreierTree *> trees_;
+  vector<const MapPermutation *> original_generators_;
+
+  vector<const MapPermutation *> allocated_generators_;
+  vector<const PermutationWord *> allocated_words_;
 };
 
 }  // namespace fssw
