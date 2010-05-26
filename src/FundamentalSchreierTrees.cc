@@ -19,7 +19,8 @@ FundamentalSchreierTrees::~FundamentalSchreierTrees() {
 
   // free the words
   for (vector<const PermutationWord *>::iterator
-       it = allocated_words_.begin(); it != allocated_words_.end();
+       it = allocated_generator_words_.begin();
+       it != allocated_generator_words_.end();
        ++it) {
     delete *it;
   }
@@ -37,7 +38,9 @@ void FundamentalSchreierTrees::add_generator_no_copy(const MapPermutation &g) {
   PermutationWord *w_ptr = new PermutationWord();
 
   w_ptr->compose(g);
-  allocated_words_.push_back(w_ptr);
+  allocated_generator_words_.push_back(w_ptr);
+  original_words_.push_back(w_ptr);
+  distribute_generator(*w_ptr);
 }
 
 void FundamentalSchreierTrees::add_generator(
@@ -55,16 +58,36 @@ void FundamentalSchreierTrees::append_to_base(int b) {
   // add b to the base
   base_.push_back(b);
 
-  SchreierTree *tree_ptr = new SchreierTree();
+  SchreierTree *new_tree_ptr = new SchreierTree();
 
   // then to the trees
-  tree_ptr->set_root(b);
-  trees_.push_back(tree_ptr);
-}
+  new_tree_ptr->set_root(b);
+  trees_.push_back(new_tree_ptr);
+  bool changed = false;
 
-void FundamentalSchreierTrees::distribute_generators() {
-  for (int i = 0; i < allocated_words_.size(); ++i) {
-    distribute_generator(*allocated_words_[i]);
+  if (base_.size() > 1) {  // a previous tree exists
+    SchreierTree *prev_tree_ptr = trees_[base_.size() - 2];
+    int b_prev = prev_tree_ptr->get_root();
+
+    // add only the words that fix their tree's root
+    for (vector<const PermutationWord *>::iterator
+         it = prev_tree_ptr->generators_.begin();
+         it != prev_tree_ptr->generators_.end();
+         ++it) {
+      const PermutationWord *w_ptr = *it;
+
+      if (w_ptr->get_image(b_prev) == b_prev) {
+        trees_[base_.size() - 1]->add_generator(**it);
+      }
+    }
+  }
+  else {
+    // if we just added the first element to the base
+    for (vector<const PermutationWord *>::iterator
+         it = original_words_.begin();
+         it != original_words_.end(); ++it) {
+      trees_[0]->add_generator(**it);
+    }
   }
 }
 
@@ -159,16 +182,16 @@ bool FundamentalSchreierTrees::expand_base(const PermutationWord &g) {
 int FundamentalSchreierTrees::schreier_sims(
   const vector<const PermutationWord> &generators) {
   // add elements to the base until there are no generators in G_(b1,...,bk)
-  vector<const PermutationWord>::const_iterator g_it;
+  /*vector<const PermutationWord>::const_iterator g_it;
 
   for (g_it = generators.begin(); g_it != generators.end(); ++g_it) {
     expand_base(*g_it);
-  }
+  }*/
 
   // set up schreier trees
-  for (g_it = generators.begin(); g_it != generators.end(); ++g_it) {
-    add_generator(*g_it);
-  }
+  //for (g_it = generators.begin(); g_it != generators.end(); ++g_it) {
+  //  add_generator(*g_it);
+  //}
 
   build_trees();
 
