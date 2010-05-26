@@ -112,7 +112,7 @@ OrbitIterator SchreierTree::get_orbit_iterator() {
   return OrbitIterator(&tree_, root_);
 }
 
-bool SchreierTree::has_generator(const PermutationWord &g) const {
+bool SchreierTree::has_generator(const MapPermutation &g) const {
   // search for the generator it that exact form, by matching strings
   string g_str = g.to_string();
 
