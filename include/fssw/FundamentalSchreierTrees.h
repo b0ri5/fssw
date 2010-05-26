@@ -28,7 +28,8 @@ class FundamentalSchreierTrees {
   // tries to reduce g to identity through the current tree structure
   int strip(const PermutationWord &g, PermutationWord *h_ptr);
 
-  // simply append, nothing else
+  // append b to the base (add a new tree);
+  // also copies the appropriate generators in the previous tree to the new one
   void append_to_base(int b);
 
   // append and also extend anyone coming from the previous one
@@ -46,9 +47,6 @@ class FundamentalSchreierTrees {
   // calls build_tree() on each schreier tree, returns true if a tree changed
   bool build_trees();
 
-  // distribute each generator through the trees
-  void distribute_generators();
-
   int schreier_sims(const vector<const PermutationWord> &generators);
 
   // ensures that base_ is a base for the current group
@@ -61,9 +59,11 @@ class FundamentalSchreierTrees {
   vector<int> base_;
   vector<SchreierTree *> trees_;
   vector<const MapPermutation *> original_generators_;
+  vector<const PermutationWord *> original_words_;
 
   vector<const MapPermutation *> allocated_generators_;
-  vector<const PermutationWord *> allocated_words_;
+  vector<const PermutationWord *> allocated_generator_words_;
+
 };
 
 }  // namespace fssw
