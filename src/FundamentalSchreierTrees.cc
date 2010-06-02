@@ -7,29 +7,21 @@
 
 #include <fssw/SchreierTree.h>
 
+#include <sstream>
+
+using std::stringstream;
+
 namespace fssw {
 
 FundamentalSchreierTrees::~FundamentalSchreierTrees() {
   // free all of the copies of generators we needed
-  for (vector<const MapPermutation *>::iterator
-       it = allocated_generators_.begin(); it != allocated_generators_.end();
-       ++it) {
-    delete *it;
-  }
+  delete_vector_ptrs(allocated_generators_);
 
   // free the words
-  for (vector<const PermutationWord *>::iterator
-       it = allocated_generator_words_.begin();
-       it != allocated_generator_words_.end();
-       ++it) {
-    delete *it;
-  }
+  delete_vector_ptrs(allocated_generator_words_);
 
   // free the trees
-  for (vector<SchreierTree *>::iterator it = trees_.begin(); it != trees_.end();
-       ++it) {
-    delete *it;
-  }
+  delete_vector_ptrs(trees_);
 }
 
 void FundamentalSchreierTrees::add_generator_no_copy(const MapPermutation &g) {
@@ -80,8 +72,7 @@ void FundamentalSchreierTrees::append_to_base(int b) {
         trees_[base_.size() - 1]->add_generator(**it);
       }
     }
-  }
-  else {
+  } else {
     // if we just added the first element to the base
     for (vector<const PermutationWord *>::iterator
          it = original_words_.begin();
@@ -104,7 +95,7 @@ void FundamentalSchreierTrees::distribute_generator(const PermutationWord &w) {
 }
 
 int FundamentalSchreierTrees::strip(const PermutationWord &g,
-  PermutationWord* h_ptr) {
+  PermutationWord* h_ptr) const {
   h_ptr->clear();
   h_ptr->compose(g);
 
@@ -124,7 +115,7 @@ int FundamentalSchreierTrees::strip(const PermutationWord &g,
   return base_.size();
 }
 
-const SchreierTree* FundamentalSchreierTrees::get_tree(int i) {
+const SchreierTree* FundamentalSchreierTrees::get_tree(int i) const {
   if (i < 0 || i >= trees_.size()) {
     return NULL;
   }
@@ -132,7 +123,7 @@ const SchreierTree* FundamentalSchreierTrees::get_tree(int i) {
   return trees_[i];
 }
 
-int FundamentalSchreierTrees::get_base(int i) {
+int FundamentalSchreierTrees::get_base(int i) const {
   if (i < 0 || i >= base_.size()) {
     return -1;
   }
@@ -140,7 +131,20 @@ int FundamentalSchreierTrees::get_base(int i) {
   return base_[i];
 }
 
-int FundamentalSchreierTrees::get_base_length() {
+void FundamentalSchreierTrees::get_base(vector<int> *v_ptr) const {
+  *v_ptr = base_;
+}
+
+int FundamentalSchreierTrees::get_original_generators_length() const {
+  return original_generators_.size();
+}
+
+const PermutationWord *FundamentalSchreierTrees::get_original_word(int i)
+      const {
+  return original_words_.at(i);
+}
+
+int FundamentalSchreierTrees::get_base_length() const {
   return base_.size();
 }
 
@@ -153,6 +157,21 @@ bool FundamentalSchreierTrees::build_trees() {
   }
 
   return changed;
+}
+
+bool FundamentalSchreierTrees::ensure_each_generator_moves_base() {
+  // for each generator
+  for (vector<const PermutationWord *>::const_iterator
+       it = original_words_.begin(); it != original_words_.end(); ++it) {
+    const PermutationWord &s = **it;
+
+    // if it fixes the base
+    if (s.fixes(base_)) {
+      // append to the base an element that "s" moves
+      int a = s.get_moved_element();
+      append_to_base(a);
+    }
+  }
 }
 
 bool FundamentalSchreierTrees::expand_base(const PermutationWord &g) {
@@ -168,7 +187,7 @@ bool FundamentalSchreierTrees::expand_base(const PermutationWord &g) {
   }
 
   // g is in G_(b1,...,bk)
-  int a = g.get_first_moved_element();
+  int a = g.get_moved_element();
 
   // if g is the identity, base does not need to be expanded
   if (a == -1) {
@@ -189,9 +208,9 @@ int FundamentalSchreierTrees::schreier_sims(
   }*/
 
   // set up schreier trees
-  //for (g_it = generators.begin(); g_it != generators.end(); ++g_it) {
+  // for (g_it = generators.begin(); g_it != generators.end(); ++g_it) {
   //  add_generator(*g_it);
-  //}
+  // }
 
   build_trees();
 
@@ -234,6 +253,29 @@ int FundamentalSchreierTrees::schreier_sims(
   }
 
   return 0;
+}
+
+string FundamentalSchreierTrees::str() const {
+  stringstream ss;
+
+  ss << "original_generators : ";
+
+  for (int i = 0; i < original_generators_.size(); ++i) {
+    const MapPermutation &s = *original_generators_[i];
+
+    ss << s.to_string() << " ";
+  }
+
+  ss << "\n";
+  ss << "base : ";
+
+  for (int i = 0; i < base_.size(); ++i) {
+    ss << base_[i] << " ";
+  }
+
+  ss << "\n";
+
+  return ss.str();
 }
 
 }  // namespace fssw

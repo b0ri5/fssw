@@ -14,6 +14,16 @@ namespace fssw {
 
 class FundamentalSchreierTreesTest : public ::testing::Test {
  public:
+  void verify_each_generator_moves_base(const FundamentalSchreierTrees &t) {
+    vector<int> base;
+
+    t.get_base(&base);
+
+    for (int i = 0; i < t.get_original_generators_length(); ++i) {
+      const PermutationWord &s = *t.get_original_word(i);
+      EXPECT_FALSE(s.fixes(base));
+    }
+  }
 };
 
 TEST_F(FundamentalSchreierTreesTest, Instantiation) {
@@ -35,7 +45,6 @@ TEST_F(FundamentalSchreierTreesTest, DistributeGenerator) {
   MapPermutation s;
   s.from_string("()");
   t.add_generator(s);
-  //t.distribute_generators();
   // should show up in both trees
   EXPECT_TRUE(t.get_tree(0)->has_generator(s));
   EXPECT_TRUE(t.get_tree(1)->has_generator(s));
@@ -112,6 +121,22 @@ TEST_F(FundamentalSchreierTreesTest, StripSmall) {
   g.from_string("(0 1 2)");
   EXPECT_EQ(1, t.strip(g, &h));
   EXPECT_EQ(0, h.get_image(0));
+}
+
+
+TEST_F(FundamentalSchreierTreesTest, EnsureEachGeneratorFixesBase) {
+  FundamentalSchreierTrees t;
+  MapPermutation s;
+
+  s.from_string("(0 1)");
+  t.add_generator(s);
+  t.ensure_each_generator_moves_base();
+  verify_each_generator_moves_base(t);
+
+  s.from_string("(2 3)");
+  t.add_generator(s);
+  t.ensure_each_generator_moves_base();
+  verify_each_generator_moves_base(t);
 }
 
 }  // namespace fssw

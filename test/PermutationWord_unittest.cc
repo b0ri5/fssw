@@ -103,19 +103,19 @@ TEST_F(PermutationWordTest, ComposeWordAndInverse) {
 TEST_F(PermutationWordTest, GetFirstMovedElement) {
   PermutationWord w;
 
-  EXPECT_EQ(w.get_first_moved_element(), -1);
+  EXPECT_EQ(w.get_moved_element(), -1);
   ASSERT_TRUE(w.from_string("(0 1)"));
 
-  EXPECT_EQ(w.get_first_moved_element(), 0);
+  EXPECT_EQ(w.get_moved_element(), 0);
   ASSERT_TRUE(w.from_string("(0 1)*(1 0)"));
 
-  EXPECT_EQ(w.get_first_moved_element(), -1);
+  EXPECT_EQ(w.get_moved_element(), -1);
   ASSERT_TRUE(w.from_string("(0 1)*(1 0)*(2 3)"));
 
-  EXPECT_EQ(w.get_first_moved_element(), 2);
+  EXPECT_EQ(w.get_moved_element(), 2);
   ASSERT_TRUE(w.from_string("(0 1)*(0 2 1)*(2 1)"));
 
-  EXPECT_EQ(w.get_first_moved_element(), -1);
+  EXPECT_EQ(w.get_moved_element(), -1);
 }
 
 TEST_F(PermutationWordTest, IsEquivalent) {
