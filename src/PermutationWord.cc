@@ -85,7 +85,7 @@ int PermutationWord::get_inverse_image(int a) const {
   return a;
 }
 
-int PermutationWord::get_first_moved_element() const {
+int PermutationWord::get_moved_element() const {
   // this basically checks for identity more efficiently;
   // returns first moved element or -1 if none are moved.
   set<int> moved_elements;

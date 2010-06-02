@@ -27,6 +27,20 @@ class Permutation {
 
   // sets to identity
   virtual void clear() = 0;
+
+  bool fixes(int a) const;
+
+  template <typename T>
+  bool fixes(const T &collection) const {
+    for (typename T::const_iterator it = collection.begin();
+         it != collection.end(); ++it) {
+      if (!fixes(*it)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 };
 
 }  // namespace fssw

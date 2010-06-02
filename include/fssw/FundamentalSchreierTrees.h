@@ -7,8 +7,10 @@
 */
 
 #include <vector>
+#include <string>
 
 using std::vector;
+using std::string;
 
 namespace fssw {
 
@@ -26,7 +28,7 @@ class FundamentalSchreierTrees {
   ~FundamentalSchreierTrees();
 
   // tries to reduce g to identity through the current tree structure
-  int strip(const PermutationWord &g, PermutationWord *h_ptr);
+  int strip(const PermutationWord &g, PermutationWord *h_ptr) const;
 
   // append b to the base (add a new tree);
   // also copies the appropriate generators in the previous tree to the new one
@@ -40,9 +42,15 @@ class FundamentalSchreierTrees {
   void add_generator_no_copy(const MapPermutation &g);
 
   // accessors used in testing
-  const SchreierTree *get_tree(int i);
-  int get_base(int i);
-  int get_base_length();
+  const SchreierTree *get_tree(int i) const;
+  int get_base(int i) const;
+  void get_base(vector<int> *v_ptr) const;
+  int get_base_length() const;
+  const PermutationWord *get_original_word(int i) const;
+  int get_original_generators_length() const;
+
+  // for testing purposes, output as a string
+  string str() const;
 
   // calls build_tree() on each schreier tree, returns true if a tree changed
   bool build_trees();
@@ -51,6 +59,9 @@ class FundamentalSchreierTrees {
 
   // ensures that base_ is a base for the current group
   bool expand_base(const PermutationWord &g);
+
+  // appends elements to the base until each generator moves the base
+  bool ensure_each_generator_moves_base();
 
  private:
   // adds "w" to each schreier tree up until "w" moves a base element
@@ -63,8 +74,16 @@ class FundamentalSchreierTrees {
 
   vector<const MapPermutation *> allocated_generators_;
   vector<const PermutationWord *> allocated_generator_words_;
-
 };
+
+template <typename T>
+static void delete_vector_ptrs(const vector<T *> &v) {
+  for (typename vector<T *>::const_iterator
+       it = v.begin(); it != v.end();
+       ++it) {
+    delete *it;
+  }
+}
 
 }  // namespace fssw
 
