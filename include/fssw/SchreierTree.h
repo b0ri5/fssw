@@ -11,10 +11,12 @@
 #include <map>
 #include <deque>
 #include <vector>
+#include <string>
 
 using std::map;
 using std::deque;
 using std::vector;
+using std::string;
 
 namespace fssw {
 
