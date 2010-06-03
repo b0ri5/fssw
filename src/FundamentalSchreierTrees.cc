@@ -165,7 +165,7 @@ bool FundamentalSchreierTrees::build_trees() {
 
   for (int i = 0; i < trees_.size(); i++) {
     SchreierTree &tree = *trees_[i];
-    changed = tree.build_tree() || changed; // order is important here!!!
+    changed = tree.build_tree() || changed;  // order is important here!!!
   }
 
   return changed;
@@ -187,7 +187,6 @@ bool FundamentalSchreierTrees::ensure_each_generator_moves_base() {
 }
 
 int FundamentalSchreierTrees::schreier_sims() {
-
   ensure_each_generator_moves_base();
   build_trees();
 
@@ -284,7 +283,6 @@ bool FundamentalSchreierTrees::does_each_generator_move_base() const {
 }
 
 bool FundamentalSchreierTrees::is_strongly_generated() {
-  printf("testing fundamental trees:\n%s\n", to_string().c_str());
   for (int i = 0; i < base_.size(); ++i) {
     // test each schreier generator
     SchreierTree &t = *trees_[i];
@@ -317,28 +315,9 @@ bool FundamentalSchreierTrees::is_strongly_generated() {
         schreier_gen.compose(s);
         schreier_gen.compose_inverse(b_to_as);
 
-        printf("b: %d\n", t.get_root());
-        printf("a: %d\n", a);
-        printf("s: %s\n", s.to_string().c_str());
-        printf("a^s: %d\n", as);
-        printf("b_to_a: %s\n", b_to_a.to_string().c_str());
-        PermutationWord b_to_a_s;
-        b_to_a_s.compose(b_to_a);
-        b_to_a_s.compose(s);
-        printf("b_to_a_s: %s\n", b_to_a_s.to_string().c_str());
-        printf("b_to_as: %s\n", b_to_as.to_string().c_str());
-        printf("schreier_gen: %s == %s\n", schreier_gen.to_string().c_str(),
-                  schreier_gen.to_evaluated_string().c_str());
-
         PermutationWord h;
         int j = strip(schreier_gen, &h);
 
-        printf("h: %s == %s\n", h.to_string().c_str(),
-            h.to_evaluated_string().c_str());
-        printf("j: %d\n", j);
-        printf("j < base_.size(): %d, !h.is_identity: %d\n", j < base_.size(),
-            !h.is_identity());
-        printf("\n");
         if (j < base_.size() || !h.is_identity()) {
           return false;
         }
