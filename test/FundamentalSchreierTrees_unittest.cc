@@ -14,15 +14,8 @@ namespace fssw {
 
 class FundamentalSchreierTreesTest : public ::testing::Test {
  public:
-  void verify_each_generator_moves_base(const FundamentalSchreierTrees &t) {
-    vector<int> base;
-
-    t.get_base(&base);
-
-    for (int i = 0; i < t.get_original_generators_length(); ++i) {
-      const PermutationWord &s = *t.get_original_word(i);
-      EXPECT_FALSE(s.fixes(base));
-    }
+  void TearDown() {
+    MapPermutationAllocator::clear_memory();
   }
 };
 
@@ -131,12 +124,63 @@ TEST_F(FundamentalSchreierTreesTest, EnsureEachGeneratorFixesBase) {
   s.from_string("(0 1)");
   t.add_generator(s);
   t.ensure_each_generator_moves_base();
-  verify_each_generator_moves_base(t);
+  EXPECT_TRUE(t.does_each_generator_move_base());
 
   s.from_string("(2 3)");
   t.add_generator(s);
   t.ensure_each_generator_moves_base();
-  verify_each_generator_moves_base(t);
+  EXPECT_TRUE(t.does_each_generator_move_base());
+}
+
+TEST_F(FundamentalSchreierTreesTest, IsStronglyGeneratedSmallest) {
+  FundamentalSchreierTrees t;
+  MapPermutation s;
+
+  s.from_string("(0 1)");
+  t.add_generator(s);
+  t.build_trees();
+  // should be false since we have an empty base
+  EXPECT_FALSE(t.is_strongly_generated());
+
+  t.append_to_base(0);
+  t.build_trees();
+
+  // should be true since we have a base now
+  EXPECT_TRUE(t.is_strongly_generated());
+
+  s.from_string("(0 2)");
+  t.add_generator(s);
+  t.append_to_base(2);
+  t.build_trees();
+  // should be false because when we fix "0" nothing is left, but <(1 2)> is
+  // the subgroup which fixes 0
+  EXPECT_FALSE(t.is_strongly_generated());
+
+  s.from_string("(1 2)");
+  t.add_generator(s);
+  t.build_trees();
+  // should be true now that we've added (1 2)
+  EXPECT_TRUE(t.is_strongly_generated());
+}
+
+TEST_F(FundamentalSchreierTreesTest, IsStronglyGeneratedS4) {
+  FundamentalSchreierTrees t;
+
+  t.add_generator("(0 1)");
+  t.add_generator("(0 1 2 3)");
+  t.append_to_base(0);
+  t.append_to_base(1);
+  t.append_to_base(2);
+  t.build_trees();
+  EXPECT_FALSE(t.is_strongly_generated());
+
+  t.add_generator("(1 2)");
+  t.build_trees();
+  EXPECT_FALSE(t.is_strongly_generated());
+
+  t.add_generator("(2 3)");
+  t.build_trees();
+  EXPECT_TRUE(t.is_strongly_generated());
 }
 
 }  // namespace fssw

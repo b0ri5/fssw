@@ -6,8 +6,10 @@
 #include <fssw/SchreierTree.h>
 
 #include <deque>
+#include <sstream>
 
 using std::deque;
+using std::stringstream;
 
 namespace fssw {
 
@@ -108,6 +110,14 @@ bool SchreierTree::path_to_root(int a, PermutationWord *path_ptr) {
   return true;
 }
 
+bool SchreierTree::path_from_root(int a, PermutationWord *path_ptr) {
+  PermutationWord w;
+  bool rv = path_to_root(a, &w);
+  path_ptr->compose_inverse(w);
+
+  return rv;
+}
+
 OrbitIterator SchreierTree::get_orbit_iterator() {
   return OrbitIterator(&tree_, root_);
 }
@@ -123,6 +133,27 @@ bool SchreierTree::has_generator(const MapPermutation &g) const {
     }
   }
   return false;
+}
+
+string SchreierTree::to_string() const {
+  stringstream ss;
+
+  ss << "root: " << root_ << "\n";
+
+  ss << "generators: ";
+  for (int i = 0; i < generators_.size(); ++i) {
+    ss << generators_[i]->to_string() << " ";
+  }
+  ss << "\n";
+
+  ss << "tree: " << "{ ";
+  for (map<int, const PermutationWord *>::const_iterator it = tree_.begin();
+       it != tree_.end(); ++it) {
+    ss << it->first << ":" << it->second->to_evaluated_string() << " ";
+  }
+  ss << "}";
+
+  return ss.str();
 }
 
 }  // namespace fssw

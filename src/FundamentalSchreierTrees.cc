@@ -35,8 +35,7 @@ void FundamentalSchreierTrees::add_generator_no_copy(const MapPermutation &g) {
   distribute_generator(*w_ptr);
 }
 
-void FundamentalSchreierTrees::add_generator(
-    const MapPermutation &g) {
+void FundamentalSchreierTrees::add_generator(const MapPermutation &g) {
   // copy the generator
   MapPermutation *g_ptr = new MapPermutation();
   g_ptr->from_string(g.to_string());
@@ -44,6 +43,17 @@ void FundamentalSchreierTrees::add_generator(
   // add and keep track of the copy
   add_generator_no_copy(*g_ptr);
   allocated_generators_.push_back(g_ptr);
+}
+
+bool FundamentalSchreierTrees::add_generator(string s) {
+  MapPermutation g;
+  bool rv = g.from_string(s);
+
+  if (rv) {
+    add_generator(g);
+  }
+
+  return rv;
 }
 
 void FundamentalSchreierTrees::append_to_base(int b) {
@@ -152,8 +162,10 @@ int FundamentalSchreierTrees::get_base_length() const {
 
 bool FundamentalSchreierTrees::build_trees() {
   bool changed = false;
+
   for (int i = 0; i < trees_.size(); i++) {
-    changed = changed || trees_.at(i)->build_tree();
+    SchreierTree &tree = *trees_[i];
+    changed = tree.build_tree() || changed; // order is important here!!!
   }
 
   return changed;
@@ -174,91 +186,173 @@ bool FundamentalSchreierTrees::ensure_each_generator_moves_base() {
   }
 }
 
-bool FundamentalSchreierTrees::expand_base(const PermutationWord &g) {
-  // ensures one condition that B is a base: the only permutation that does
-  // not move any element of the base should be the identity;
-  for (int i = 0; i <= base_.size(); ++i) {
-    int b = base_[i];
+int FundamentalSchreierTrees::schreier_sims() {
 
-    if (g.get_image(b) != b) {
-      // g moves at least one base element
-      return false;
-    }
-  }
-
-  // g is in G_(b1,...,bk)
-  int a = g.get_moved_element();
-
-  // if g is the identity, base does not need to be expanded
-  if (a == -1) {
-    return false;
-  }
-
-  append_to_base(a);
-  return true;
-}
-
-int FundamentalSchreierTrees::schreier_sims(
-  const vector<const PermutationWord> &generators) {
-  // add elements to the base until there are no generators in G_(b1,...,bk)
-  /*vector<const PermutationWord>::const_iterator g_it;
-
-  for (g_it = generators.begin(); g_it != generators.end(); ++g_it) {
-    expand_base(*g_it);
-  }*/
-
-  // set up schreier trees
-  // for (g_it = generators.begin(); g_it != generators.end(); ++g_it) {
-  //  add_generator(*g_it);
-  // }
-
+  ensure_each_generator_moves_base();
   build_trees();
-
-  // now: H^(k+1) = e
 
   int i = base_.size() - 1;
 
   while (i >= 0) {
     // test condition that H^(i)_{b_i} = H^(i+1)
-    SchreierTree *t_i = trees_[i];
-    for (OrbitIterator orbit_it = t_i->get_orbit_iterator();
-      orbit_it.has_next(); ++orbit_it) {
-      int a = *orbit_it;
-
-      // find g such that: b_i^(g_a) = a
-      PermutationWord g_a;
-      t_i->path_to_root(a, &g_a);
-
-      vector<const PermutationWord*> *S_i = &t_i->generators_;
-
-      for (vector<const PermutationWord*>::const_iterator s_it = S_i->begin();
-        s_it != S_i->end(); ++s_it) {
-        const PermutationWord *s = *s_it;
-        int as = s->get_image(a);
-
-        // find g_as such that: b_i^(g_as) = a^s
-        PermutationWord g_as;
-        t_i->path_to_root(as, &g_as);
-
-        // ga_s = g_a * s
-        PermutationWord ga_s;
-        ga_s.compose(g_a);
-        ga_s.compose(*s);
-
-        if (!ga_s.is_equivalent(g_as)) {
-          // TODO:...
-        }
-      }
-    }
+    ensure_stabilizer_is_generated(&i);
   }
 
   return 0;
 }
 
-string FundamentalSchreierTrees::str() const {
+bool FundamentalSchreierTrees::ensure_stabilizer_is_generated(int *i_ptr) {
+  SchreierTree &t = *trees_.at(*i_ptr);
+  int b = t.get_root();
+
+  for (OrbitIterator orbit_it = t.get_orbit_iterator();
+    orbit_it.has_next(); ++orbit_it) {
+    int a = *orbit_it;
+
+    // ignore the root
+    if (a == b) {
+      continue;
+    }
+
+    // find g such that: b^g = a
+    PermutationWord b_to_a;
+    t.path_from_root(a, &b_to_a);
+
+    const vector<const PermutationWord*> &generators = t.generators_;
+
+    for (vector<const PermutationWord*>::const_iterator
+         s_it = generators.begin(); s_it != generators.end(); ++s_it) {
+      const PermutationWord &s = **s_it;
+      int as = s.get_image(a);
+
+      // find g such that: b^g = as
+      PermutationWord b_to_as;
+      t.path_from_root(as, &b_to_as);
+
+      // compose b_to_a with s
+      PermutationWord b_to_a_s;
+      b_to_a_s.compose(b_to_a);
+      b_to_a_s.compose(s);
+
+      if (b_to_a_s.is_equivalent(b_to_as)) {
+        continue;
+      }
+
+      PermutationWord schreier_gen;
+      schreier_gen.compose(b_to_a_s);
+      schreier_gen.compose_inverse(b_to_as);
+
+      PermutationWord h;
+      int j = strip(schreier_gen, &h);
+      bool has_new_strong_gen = false;
+
+      if (j < base_.size()) {
+        has_new_strong_gen = true;
+      } else if (!h.is_identity()) {
+        has_new_strong_gen = true;
+        append_to_base(h.get_moved_element());
+      }
+
+      if (!has_new_strong_gen) {
+        continue;
+      }
+
+      PermutationWord *new_strong_gen = new PermutationWord();
+      allocated_generator_words_.push_back(new_strong_gen);
+      new_strong_gen->compose(h);
+
+      for (int l = *i_ptr + 1; l <= j; ++l) {
+        trees_[l]->add_generator(*new_strong_gen);
+        trees_[l]->build_tree();
+        *i_ptr = j;
+        return 0;
+      }
+    }
+  }
+
+  return true;
+}
+
+bool FundamentalSchreierTrees::does_each_generator_move_base() const {
+  for (int i = 0; i < original_generators_.size(); ++i) {
+    if (original_generators_[i]->fixes(base_)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+bool FundamentalSchreierTrees::is_strongly_generated() {
+  printf("testing fundamental trees:\n%s\n", to_string().c_str());
+  for (int i = 0; i < base_.size(); ++i) {
+    // test each schreier generator
+    SchreierTree &t = *trees_[i];
+
+    for (OrbitIterator orbit_it = t.get_orbit_iterator();
+      orbit_it.has_next(); ++orbit_it) {
+      int a = *orbit_it;
+
+      if (a == t.get_root()) {
+        continue;
+      }
+
+      PermutationWord b_to_a;
+      t.path_from_root(a, &b_to_a);
+
+      const vector<const PermutationWord*> &generators = t.generators_;
+
+      for (vector<const PermutationWord*>::const_iterator
+           s_it = generators.begin(); s_it != generators.end(); ++s_it) {
+        const PermutationWord &s = **s_it;
+        int as = s.get_image(a);
+
+        // find g such that: b^g = as
+        PermutationWord b_to_as;
+        t.path_from_root(as, &b_to_as);
+
+        // construct the schreier gen
+        PermutationWord schreier_gen;
+        schreier_gen.compose(b_to_a);
+        schreier_gen.compose(s);
+        schreier_gen.compose_inverse(b_to_as);
+
+        printf("b: %d\n", t.get_root());
+        printf("a: %d\n", a);
+        printf("s: %s\n", s.to_string().c_str());
+        printf("a^s: %d\n", as);
+        printf("b_to_a: %s\n", b_to_a.to_string().c_str());
+        PermutationWord b_to_a_s;
+        b_to_a_s.compose(b_to_a);
+        b_to_a_s.compose(s);
+        printf("b_to_a_s: %s\n", b_to_a_s.to_string().c_str());
+        printf("b_to_as: %s\n", b_to_as.to_string().c_str());
+        printf("schreier_gen: %s == %s\n", schreier_gen.to_string().c_str(),
+                  schreier_gen.to_evaluated_string().c_str());
+
+        PermutationWord h;
+        int j = strip(schreier_gen, &h);
+
+        printf("h: %s == %s\n", h.to_string().c_str(),
+            h.to_evaluated_string().c_str());
+        printf("j: %d\n", j);
+        printf("j < base_.size(): %d, !h.is_identity: %d\n", j < base_.size(),
+            !h.is_identity());
+        printf("\n");
+        if (j < base_.size() || !h.is_identity()) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return does_each_generator_move_base();
+}
+
+string FundamentalSchreierTrees::to_string() const {
   stringstream ss;
 
-  ss << "original_generators : ";
+  ss << "original_generators: ";
 
   for (int i = 0; i < original_generators_.size(); ++i) {
     const MapPermutation &s = *original_generators_[i];
@@ -267,10 +361,17 @@ string FundamentalSchreierTrees::str() const {
   }
 
   ss << "\n";
-  ss << "base : ";
+  ss << "base: ";
 
   for (int i = 0; i < base_.size(); ++i) {
     ss << base_[i] << " ";
+  }
+
+  ss << "\n";
+
+  ss << "trees: \n";
+  for (int i = 0; i < trees_.size(); i++) {
+    ss << trees_[i]->to_string() << "\n";
   }
 
   ss << "\n";

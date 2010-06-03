@@ -24,6 +24,8 @@ void MapPermutationAllocator::clear_memory() {
       perm_it != permutations_.end(); ++perm_it) {
     delete *perm_it;
   }
+
+  permutations_.clear();
 }
 
 PermutationPart::PermutationPart(const MapPermutation *g_ptr_, bool is_inverse_)
@@ -227,6 +229,14 @@ string PermutationWord::to_string() const {
   }
 
   return s;
+}
+
+string PermutationWord::to_evaluated_string() const {
+  MapPermutation g;
+
+  evaluate(&g);
+
+  return g.to_string();
 }
 
 void PermutationWord::compose(const MapPermutation &g) {

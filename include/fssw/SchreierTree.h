@@ -78,11 +78,14 @@ class SchreierTree {
 
   // returns false if a is not in the orbit
   bool path_to_root(int a, PermutationWord *path_ptr);
+  bool path_from_root(int a, PermutationWord *path_ptr);
 
   typedef OrbitIterator iterator;
   OrbitIterator get_orbit_iterator();
 
   bool has_generator(const MapPermutation &g) const;
+
+  string to_string() const;
 
   friend class FundamentalSchreierTrees;
 
