@@ -69,6 +69,7 @@ class PermutationWord : public Permutation {
 
   bool from_string(string s);
   string to_string() const;
+  string to_evaluated_string() const;
 
   int get_moved_element() const;
 

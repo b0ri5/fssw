@@ -39,6 +39,7 @@ class FundamentalSchreierTrees {
 
   // adds "g" as an original generator; makes a copy of "g"
   void add_generator(const MapPermutation &g);
+  bool add_generator(string s);
   void add_generator_no_copy(const MapPermutation &g);
 
   // accessors used in testing
@@ -50,18 +51,25 @@ class FundamentalSchreierTrees {
   int get_original_generators_length() const;
 
   // for testing purposes, output as a string
-  string str() const;
+  string to_string() const;
 
   // calls build_tree() on each schreier tree, returns true if a tree changed
   bool build_trees();
 
-  int schreier_sims(const vector<const PermutationWord> &generators);
+  int schreier_sims();
 
-  // ensures that base_ is a base for the current group
-  bool expand_base(const PermutationWord &g);
+  // ensures that H^(i)_b = H^(i+1), and modifies "i" to be the next place
+  // this condition should be ensured
+  bool ensure_stabilizer_is_generated(int *i_ptr);
 
   // appends elements to the base until each generator moves the base
   bool ensure_each_generator_moves_base();
+
+  // returns true if the schreier generators of H^(i)_{b_i} are all contained in
+  // H^(i+1)
+  bool is_strongly_generated();
+
+  bool does_each_generator_move_base() const;
 
  private:
   // adds "w" to each schreier tree up until "w" moves a base element
