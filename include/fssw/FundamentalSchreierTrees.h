@@ -29,13 +29,11 @@ class FundamentalSchreierTrees {
 
   // tries to reduce g to identity through the current tree structure
   int strip(const PermutationWord &g, PermutationWord *h_ptr) const;
+  int strip(const MapPermutation &g, PermutationWord *h_ptr) const;
 
   // append b to the base (add a new tree);
   // also copies the appropriate generators in the previous tree to the new one
   void append_to_base(int b);
-
-  // append and also extend anyone coming from the previous one
-  void extend_base(int b);
 
   // adds "g" as an original generator; makes a copy of "g"
   void add_generator(const MapPermutation &g);
@@ -49,6 +47,9 @@ class FundamentalSchreierTrees {
   int get_base_length() const;
   const PermutationWord *get_original_word(int i) const;
   int get_original_generators_length() const;
+
+  // returns the order of the group, returns -1 if an overflow occurs
+  long long int order() const;
 
   // for testing purposes, output as a string
   string to_string() const;

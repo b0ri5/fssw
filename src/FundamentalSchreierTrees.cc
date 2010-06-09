@@ -105,7 +105,7 @@ void FundamentalSchreierTrees::distribute_generator(const PermutationWord &w) {
 }
 
 int FundamentalSchreierTrees::strip(const PermutationWord &g,
-  PermutationWord* h_ptr) const {
+    PermutationWord* h_ptr) const {
   h_ptr->clear();
   h_ptr->compose(g);
 
@@ -123,6 +123,15 @@ int FundamentalSchreierTrees::strip(const PermutationWord &g,
   }
 
   return base_.size();
+}
+
+int FundamentalSchreierTrees::strip(const MapPermutation &g,
+    PermutationWord *h_ptr) const {
+  PermutationWord w;
+
+  w.compose(g);
+
+  return strip(w, h_ptr);
 }
 
 const SchreierTree* FundamentalSchreierTrees::get_tree(int i) const {
@@ -191,29 +200,30 @@ int FundamentalSchreierTrees::schreier_sims() {
   build_trees();
 
   int i = base_.size() - 1;
+  bool changed = false;
 
   while (i >= 0) {
     // test condition that H^(i)_{b_i} = H^(i+1)
-    ensure_stabilizer_is_generated(&i);
+    changed = ensure_stabilizer_is_generated(&i) || changed;
   }
 
-  return 0;
+  return changed;
 }
 
 bool FundamentalSchreierTrees::ensure_stabilizer_is_generated(int *i_ptr) {
+  bool changed = false;
   SchreierTree &t = *trees_.at(*i_ptr);
-  int b = t.get_root();
 
   for (OrbitIterator orbit_it = t.get_orbit_iterator();
-    orbit_it.has_next(); ++orbit_it) {
+    orbit_it.not_at_end(); ++orbit_it) {
     int a = *orbit_it;
 
-    // ignore the root
-    if (a == b) {
+    // don't test the stabilizer of the root (it will be the identity)
+    if (a == t.get_root()) {
       continue;
     }
 
-    // find g such that: b^g = a
+    // find g such that: b^g = a, where b == t.get_root()
     PermutationWord b_to_a;
     t.path_from_root(a, &b_to_a);
 
@@ -233,6 +243,8 @@ bool FundamentalSchreierTrees::ensure_stabilizer_is_generated(int *i_ptr) {
       b_to_a_s.compose(b_to_a);
       b_to_a_s.compose(s);
 
+      // if b_to_a_s == b_to_as we will be sifting the identity which is
+      // unnecessary
       if (b_to_a_s.is_equivalent(b_to_as)) {
         continue;
       }
@@ -242,13 +254,15 @@ bool FundamentalSchreierTrees::ensure_stabilizer_is_generated(int *i_ptr) {
       schreier_gen.compose_inverse(b_to_as);
 
       PermutationWord h;
+      // see what the schreier gen sifts to
       int j = strip(schreier_gen, &h);
       bool has_new_strong_gen = false;
 
+      // if we didn't get all the way to the last tree, add the stripee
       if (j < base_.size()) {
         has_new_strong_gen = true;
-      } else if (!h.is_identity()) {
-        has_new_strong_gen = true;
+      } else if (!h.is_identity()) {  // otherwise we got to the end, but "h" is
+        has_new_strong_gen = true;    // not the identity, so extend the base
         append_to_base(h.get_moved_element());
       }
 
@@ -256,6 +270,20 @@ bool FundamentalSchreierTrees::ensure_stabilizer_is_generated(int *i_ptr) {
         continue;
       }
 
+      changed = true;
+      /*printf("b_to_a == %s\n", b_to_a.to_evaluated_string().c_str());
+      printf("s == %s\n", s.to_evaluated_string().c_str());
+      printf("b_to_a_s == %s\n", b_to_a_s.to_evaluated_string().c_str());
+      printf("a == %d\n", a);
+      printf("as == %d\n", as);
+      printf("b_to_as == %s\n", b_to_as.to_string().c_str());
+      printf("schreier_gen == %s\n", schreier_gen.to_evaluated_string().c_str());
+      printf("h == %s\n", h.to_evaluated_string().c_str());
+      printf("state before stripping %s [%s]\n%s\n", schreier_gen.to_string().c_str(),
+          schreier_gen.to_evaluated_string().c_str(), to_string().c_str());*/
+      // j = strip(schreier_gen, &h);
+
+      // add the new generator
       PermutationWord *new_strong_gen = new PermutationWord();
       allocated_generator_words_.push_back(new_strong_gen);
       new_strong_gen->compose(h);
@@ -263,13 +291,16 @@ bool FundamentalSchreierTrees::ensure_stabilizer_is_generated(int *i_ptr) {
       for (int l = *i_ptr + 1; l <= j; ++l) {
         trees_[l]->add_generator(*new_strong_gen);
         trees_[l]->build_tree();
-        *i_ptr = j;
-        return 0;
       }
+
+      *i_ptr = j;
+      return true;
     }
   }
 
-  return true;
+  *i_ptr -= 1;
+
+  return changed;
 }
 
 bool FundamentalSchreierTrees::does_each_generator_move_base() const {
@@ -288,7 +319,7 @@ bool FundamentalSchreierTrees::is_strongly_generated() {
     SchreierTree &t = *trees_[i];
 
     for (OrbitIterator orbit_it = t.get_orbit_iterator();
-      orbit_it.has_next(); ++orbit_it) {
+      orbit_it.not_at_end(); ++orbit_it) {
       int a = *orbit_it;
 
       if (a == t.get_root()) {
@@ -328,6 +359,22 @@ bool FundamentalSchreierTrees::is_strongly_generated() {
   return does_each_generator_move_base();
 }
 
+long long int FundamentalSchreierTrees::order() const {
+  long long int product = 1;
+
+  // the order is the product of the fundamental orbit sizes
+  for (int i = 0; i < trees_.size(); ++i) {
+    // check for overflow
+    if (product * trees_[i]->size() < product) {
+      return -1;
+    }
+
+    product *= trees_[i]->size();
+  }
+
+  return product;
+}
+
 string FundamentalSchreierTrees::to_string() const {
   stringstream ss;
 
@@ -335,8 +382,10 @@ string FundamentalSchreierTrees::to_string() const {
 
   for (int i = 0; i < original_generators_.size(); ++i) {
     const MapPermutation &s = *original_generators_[i];
-
-    ss << s.to_string() << " ";
+    ss << s.to_string();
+    if (i + 1 < original_generators_.size()) {
+      ss << ", ";
+    }
   }
 
   ss << "\n";

@@ -13,42 +13,54 @@ using std::stringstream;
 
 namespace fssw {
 
-OrbitIterator::OrbitIterator() {
-}
-
 OrbitIterator::OrbitIterator(map<int, const PermutationWord *> *tree_ptr,
-    int root) {
+    int root) : use_queue_(true) {
+  // use the queue initially to iterate over the root
+  smaller_elements_.push_back(root);
   tree_ptr_ = tree_ptr;
   tree_it_ = tree_ptr->begin();
-  append(root);
 }
 
-bool OrbitIterator::has_next() {
+bool OrbitIterator::not_at_end() {
   return !smaller_elements_.empty() || tree_it_ != tree_ptr_->end();
 }
 
 void OrbitIterator::append(int a) {
-  if (tree_it_ == tree_ptr_->end() || a < tree_it_->first) {
+  // if the iterator is at its end, use the queue
+  if (tree_it_ == tree_ptr_->end()) {
+    smaller_elements_.push_back(a);
+    use_queue_ = true;
+  // otherwise if the iterator is not at its end, only smaller elements which
+  // cannot be emitted anymore should be appended
+  } else if (a < tree_it_->first) {
     smaller_elements_.push_back(a);
   }
 }
 
 OrbitIterator &OrbitIterator::operator++() {
-  if (!smaller_elements_.empty()) {
-    smaller_elements_.pop_front();
-  } else {
+  if (!use_queue_) {
     ++tree_it_;
+    // switch to queue if it is nonempty
+    if (!smaller_elements_.empty()) {
+      use_queue_ = true;
+    }
+  } else {
+    smaller_elements_.pop_front();
+    // switch back to iterator if queue is empty
+    if (smaller_elements_.empty()) {
+      use_queue_ = false;
+    }
   }
 
   return *this;
 }
 
 int OrbitIterator::operator*() const {
-  if (!smaller_elements_.empty()) {
-    return smaller_elements_.front();
+  if (!use_queue_) {
+    return tree_it_->first;
   }
 
-  return tree_it_->first;
+  return smaller_elements_.front();
 }
 
 void SchreierTree::set_root(int root) {
@@ -64,7 +76,7 @@ bool SchreierTree::build_tree() {
 
   // iterate over the elements in the orbit
   for (SchreierTree::iterator orbit_it = get_orbit_iterator();
-      orbit_it.has_next(); ++orbit_it) {
+      orbit_it.not_at_end(); ++orbit_it) {
     int a = *orbit_it;
 
     // iterate over the generators
@@ -135,6 +147,10 @@ bool SchreierTree::has_generator(const MapPermutation &g) const {
   return false;
 }
 
+int SchreierTree::size() const {
+  return 1 + tree_.size();  // + 1 for the root
+}
+
 string SchreierTree::to_string() const {
   stringstream ss;
 
@@ -142,14 +158,22 @@ string SchreierTree::to_string() const {
 
   ss << "generators: ";
   for (int i = 0; i < generators_.size(); ++i) {
-    ss << generators_[i]->to_string() << " ";
+    ss << generators_[i]->to_string();
+    ss << " [" << generators_[i]->to_evaluated_string() << "]";
+    if (i + 1 < generators_.size()) {
+      ss << ", ";
+    }
   }
   ss << "\n";
 
   ss << "tree: " << "{ ";
   for (map<int, const PermutationWord *>::const_iterator it = tree_.begin();
        it != tree_.end(); ++it) {
-    ss << it->first << ":" << it->second->to_evaluated_string() << " ";
+    ss << it->first << ": " << it->second->to_evaluated_string();
+
+    if (it != --tree_.end()) {
+      ss << ", ";
+    }
   }
   ss << "}";
 

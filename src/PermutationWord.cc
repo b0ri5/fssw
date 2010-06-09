@@ -76,6 +76,13 @@ int PermutationWord::get_image(int a) const {
 }
 
 int PermutationWord::get_inverse_image(int a) const {
+  MapPermutation g;
+
+  evaluate(&g);
+
+  return g.get_inverse_image(a);
+  /*
+   * this implementation needs to iterate over the words in reverse
   for (vector<PermutationPart>::const_iterator perm_it = permutations_.begin();
       perm_it != permutations_.end(); ++perm_it) {
     if (!perm_it->is_inverse) {
@@ -84,7 +91,7 @@ int PermutationWord::get_inverse_image(int a) const {
       a = perm_it->g_ptr->get_image(a);
     }
   }
-  return a;
+  return a;*/
 }
 
 int PermutationWord::get_moved_element() const {

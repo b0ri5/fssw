@@ -19,6 +19,7 @@ namespace fssw {
 
 class Permutation {
  public:
+  virtual ~Permutation();
   // returns the image of element a: a^{this}
   virtual int get_image(int a) const = 0;
 
