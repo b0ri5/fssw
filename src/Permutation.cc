@@ -7,6 +7,9 @@
 
 namespace fssw {
 
+Permutation::~Permutation() {
+}
+
 bool Permutation::fixes(int a) const {
   return get_image(a) == a;
 }
