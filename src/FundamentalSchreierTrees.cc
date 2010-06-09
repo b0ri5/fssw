@@ -181,6 +181,8 @@ bool FundamentalSchreierTrees::build_trees() {
 }
 
 bool FundamentalSchreierTrees::ensure_each_generator_moves_base() {
+  bool changed = false;
+
   // for each generator
   for (vector<const PermutationWord *>::const_iterator
        it = original_words_.begin(); it != original_words_.end(); ++it) {
@@ -191,8 +193,11 @@ bool FundamentalSchreierTrees::ensure_each_generator_moves_base() {
       // append to the base an element that "s" moves
       int a = s.get_moved_element();
       append_to_base(a);
+      changed = true;
     }
   }
+
+  return changed;
 }
 
 int FundamentalSchreierTrees::schreier_sims() {
