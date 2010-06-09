@@ -32,7 +32,7 @@ class OrbitIterator {
   OrbitIterator(map<int, const PermutationWord *> *tree_ptr, int root);
 
   // returns true if there's more to be iterated over
-  bool has_next();
+  bool not_at_end();
 
   // appends the value "a" to the iterator, this is useful when changing the
   // schreier tree during iteration. This only appends elements if they are
@@ -51,6 +51,8 @@ class OrbitIterator {
 
   // a list of elements smaller than where we currently are
   deque<int> smaller_elements_;
+  // lets us know if the queue should be used or not
+  bool use_queue_;
 };
 
 /*
@@ -86,6 +88,8 @@ class SchreierTree {
   OrbitIterator get_orbit_iterator();
 
   bool has_generator(const MapPermutation &g) const;
+
+  int size() const;
 
   string to_string() const;
 
