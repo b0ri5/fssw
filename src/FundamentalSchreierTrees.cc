@@ -25,6 +25,11 @@ FundamentalSchreierTrees::~FundamentalSchreierTrees() {
 }
 
 void FundamentalSchreierTrees::add_generator_no_copy(const MapPermutation &g) {
+  // don't add the identity
+  if (g.is_identity()) {
+    return;
+  }
+
   original_generators_.push_back(&g);
 
   PermutationWord *w_ptr = new PermutationWord();
@@ -36,6 +41,11 @@ void FundamentalSchreierTrees::add_generator_no_copy(const MapPermutation &g) {
 }
 
 void FundamentalSchreierTrees::add_generator(const MapPermutation &g) {
+  // don't add the identity
+  if (g.is_identity()) {
+    return;
+  }
+
   // copy the generator
   MapPermutation *g_ptr = new MapPermutation();
   g_ptr->from_string(g.to_string());

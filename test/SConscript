@@ -16,14 +16,19 @@ LIBPATH = ['#/lib']
 if env['GTEST_LIB'] != '':
   LIBPATH.append(env['GTEST_LIB'])
 
+prev_LIBS = env['LIBS']
+LIBS = []
+LIBS.extend(prev_LIBS)
+LIBS.extend([lib_name, 'gtest', 'gtest_main'])
+
 for f in env.Glob('*.cc'):
   path, file = os.path.split(str(f) )
   name, ext = os.path.splitext(file)
   
   unittest = env.Program(file,
-              CPPPATH = CPPPATH,
-						  LIBPATH = LIBPATH,
-						  LIBS = [lib_name, 'gtest', 'gtest_main'])
+              CPPPATH=CPPPATH,
+						  LIBPATH=LIBPATH,
+              LIBS=LIBS)
   unittest_name = '%s%s%s' % (name, libsuffix, env['PROGSUFFIX'])
   
   depends = [lib]

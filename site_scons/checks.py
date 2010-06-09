@@ -190,8 +190,7 @@ def config_profile(env):
   env = config_release(env)
   
   if (env['CC'] == 'gcc'):
-    env.AppendUnique(CCFLAGS = ['-pg'] )
-    env.AppendUnique(LINKFLAGS = ['-pg'] )
+    env.AppendUnique(LIBS=['profiler'])
 
   return env
 

@@ -12,7 +12,7 @@ env = Environment(tools = ['default', 'packaging', 'boris_scons_tools'])
 conf = Configure(env, checks.all_checks)
 
 # check for gtest
-has_gtest = conf.CheckLibWithHeader('gtest', 'gtest/gtest.h', 'C++')
+has_gtest = conf.CheckLibWithHeader('gtest', 'gtest/gtest.h', 'C++', autoadd=0)
 
 # only check for cmake if needed
 if not has_gtest:
@@ -20,11 +20,12 @@ if not has_gtest:
   has_cmake = conf.CheckExecutable('cmake')
   if not has_cmake:
     print '  cmake not found, download it at http://www.cmake.org/'
-conf.Finish()
+
+env = conf.Finish()  # get our environment back!
 
 # set up for using multiple configurations, using debug as the default
 configs = ARGUMENTS.get('config', 'debug') 
-config_libsuffixes = {'debug' : '-db', 'release' : ''}
+config_libsuffixes = {'debug': '-db', 'release': '', 'profile': '-prof'}
 
 for config in configs.split(','):
   print '***Building for %s***' % (config)
