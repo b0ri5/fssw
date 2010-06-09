@@ -40,11 +40,6 @@ TEST_F(FundamentalSchreierTreesTest, DistributeGenerator) {
 
   // the identity should go in every tree
   MapPermutation s;
-  s.from_string("()");
-  t.add_generator(s);
-  // should show up in both trees
-  EXPECT_TRUE(t.get_tree(0)->has_generator(s));
-  EXPECT_TRUE(t.get_tree(1)->has_generator(s));
 
   // s moves the first base element
   s.from_string("(0 2)");
