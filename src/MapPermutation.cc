@@ -5,7 +5,11 @@
 
 #include <fssw/MapPermutation.h>
 
+#include <limits.h>
+
 #include <cstdlib>
+#include <cstdio>
+
 #include <vector>
 #include <set>
 

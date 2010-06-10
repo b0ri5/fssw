@@ -29,14 +29,12 @@ class FundamentalSchreierTrees_minimum_generatorsTest : public ::testing::Test {
 };
 
 TEST_F(FundamentalSchreierTrees_minimum_generatorsTest, SchreierSims) {
-
   string filename =  \
       "test/data/small_groups_minimum_generators_200.txt";
 
   ifstream in(filename.c_str());
 
-  if (in.fail())
-  {
+  if (in.fail()) {
     fprintf(stderr, "couldn't open data file %s\n", filename.c_str());
     exit(1);
   }
@@ -68,10 +66,15 @@ TEST_F(FundamentalSchreierTrees_minimum_generatorsTest, SchreierSims) {
     t.schreier_sims();
     // test that it's strongly generated
     ASSERT_TRUE(t.is_strongly_generated());
+    ASSERT_EQ(order, t.order());
     ASSERT_FALSE(t.schreier_sims());  // should not change "t" and return false
 
     printf("\n");
     getline(in, line);  // read in the next order
+
+    if (order > 100) {
+      line = "";
+    }
   }
 }
 
