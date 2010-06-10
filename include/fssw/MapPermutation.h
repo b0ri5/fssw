@@ -25,6 +25,7 @@ class MapPermutation : public Permutation {
  public:
   int get_image(int a) const;
   int get_inverse_image(int a) const;
+
   void clear();
 
   // sets to: (this*g)(a) = g( this(a) )

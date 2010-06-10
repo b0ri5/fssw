@@ -3,6 +3,8 @@
     Released under the Lesser General Public License v3.
 */
 
+#include <limits.h>
+
 #include <fssw/MapPermutation.h>
 
 #include <gtest/gtest.h>

@@ -19,6 +19,8 @@ def cmake_emitter(target, source, env):
   # debug and release configurations
   if env['CMAKE_GENERATOR'] == 'NMake Makefiles':
     target_dir = target_dir.Dir(env['CONFIGURATION'])
+  elif not env['CMAKE_GENERATOR'].startswith('Visual Studio'):
+    target_dir = target_dir.Dir(env['CONFIGURATION'])
     
   new_targets.append(target_dir.Dir('CMakeFiles'))
   new_targets.append(target_dir.File('CMakeCache.txt'))
@@ -69,6 +71,9 @@ def cmake_lib_emitter(target, source, env):
       
     target_dir = source_dir.Dir(env['CONFIGURATION'])
   elif env['CMAKE_GENERATOR'] == 'NMake Makefiles':
+    new_source = [source_dir.Dir(env['CONFIGURATION']).File('Makefile')]
+    target_dir = source_dir.Dir(env['CONFIGURATION'])
+  else:
     new_source = [source_dir.Dir(env['CONFIGURATION']).File('Makefile')]
     target_dir = source_dir.Dir(env['CONFIGURATION'])
   
