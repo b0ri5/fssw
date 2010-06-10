@@ -1,0 +1,44 @@
+This file lists things that could be done:
+
+1) Optimize schreier_sims a bit; quoting from the book "The observant reader
+   will have noticed an inefficiency in SchreierSims. When we return with a
+   value of i that has occurred previously then, if S^(i) has not changed since
+   the previous occurrence, we do not need to repeat the checks for those
+   Schreier generators that have already been tested. Indeed, even a Schreier
+   generator that failed the test previously will now pass it because of the new
+   generator that has been appended. It is routine to modify the code to
+   remember where we have got to on any previous occurrences of each i. Indeed,
+   in the version given in Algorithm 3, page 136 [But91], this repetition is
+   avoided even when S^(i) has changed, because the existing orbit and
+   transversal are extended rather than recalculated."
+   
+   What this means is that the for each level "i", a schreier generator need
+   only be tested once. That is, for each generator "s" and orbit element "a",
+   the schreier generator associated with them should not ever be tested twice,
+   even if we change S^(i) (since our algorithm also does not recompute but
+   rather just extends). So, somehow remember where we are and use that instead
+   of recomputing everything. 
+   
+2) Add more tests; we need more tests other than the small groups. For instance
+   we should at least have tests for the SymmetricGroup, DihedralGroup and 
+   AlternatingGroup for several values of "n". These should be done similarly
+   to the minimum generators tests. 
+   
+3) Add a method like "add_generator" but, it will sift and correct rather than
+   just adding generators to the trees. Each generator doesn't really need to go
+   into each tree as far down as it can, in fact each generator should be added
+   as it is in schreier_sims(). So implement a method called something like 
+   "inject_generator" which will sift the generator, place it appropriately,
+   then ensure the resultant group is strongly generated. As a side-effect of
+   this, schreier_sims will never need to be called. There are several
+   variants of this we could try, (a) where we place the generator where it 
+   sifts to and (b) where we do (a) and then ensure that we're strongly
+   generating. 
+   
+4) Implement an iterator over the group elements. This won't be too difficult,
+   and will also be the ultimate in testing (for groups of small order).
+   
+5) Implement a change of base function. [Most useful] 
+
+6) Implement a random schreier sims method. [Late optimization, after schreier
+   sims is 100% understood]. 
