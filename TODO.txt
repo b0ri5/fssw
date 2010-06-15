@@ -1,6 +1,6 @@
 This file lists things that could be done:
 
-1) Optimize schreier_sims a bit; quoting from the book "The observant reader
+** Optimize schreier_sims a bit; quoting from the book "The observant reader
    will have noticed an inefficiency in SchreierSims. When we return with a
    value of i that has occurred previously then, if S^(i) has not changed since
    the previous occurrence, we do not need to repeat the checks for those
@@ -18,13 +18,18 @@ This file lists things that could be done:
    even if we change S^(i) (since our algorithm also does not recompute but
    rather just extends). So, somehow remember where we are and use that instead
    of recomputing everything. 
-   
-2) Add more tests; we need more tests other than the small groups. For instance
+ 
+** Store evaluated words as the strong generators, the book suggests this. We
+   can just keep things how they are and use PermutationWords of length 1. The
+   book also suggests that the words should be stored for later use (as a member
+   of MapPermutation maybe) but we currently have no use for this. 
+ 
+** Add more tests; we need more tests other than the small groups. For instance
    we should at least have tests for the SymmetricGroup, DihedralGroup and 
    AlternatingGroup for several values of "n". These should be done similarly
    to the minimum generators tests. 
    
-3) Add a method like "add_generator" but, it will sift and correct rather than
+** Add a method like "add_generator" but, it will sift and correct rather than
    just adding generators to the trees. Each generator doesn't really need to go
    into each tree as far down as it can, in fact each generator should be added
    as it is in schreier_sims(). So implement a method called something like 
@@ -35,10 +40,10 @@ This file lists things that could be done:
    sifts to and (b) where we do (a) and then ensure that we're strongly
    generating. 
    
-4) Implement an iterator over the group elements. This won't be too difficult,
+** Implement an iterator over the group elements. This won't be too difficult,
    and will also be the ultimate in testing (for groups of small order).
    
-5) Implement a change of base function. [Most useful] 
+** Implement a change of base function. [Most useful] 
 
-6) Implement a random schreier sims method. [Late optimization, after schreier
+** Implement a random schreier sims method. [Late optimization, after schreier
    sims is 100% understood]. 
