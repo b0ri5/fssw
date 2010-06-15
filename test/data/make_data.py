@@ -18,15 +18,6 @@ import test_utils
 def main():
   parser = optparse.OptionParser()
   
-  parser.add_option('-g', '--minimal-generators', dest='minimal_generators',
-                    action="store_true", help='output minimal generators',
-                    default=True)
-  
-  parser.add_option("-n", "--max-order", dest='maximum_order',
-                    help='maximum order', default=10, type='int')
-
-  options, args = parser.parse_args()
-
   # print the order and minimal generators of the groups, separated by newlines
   # <order>
   # <gen1>
@@ -34,8 +25,28 @@ def main():
   #
   # <order2>
   # ...
-  if options.minimal_generators:
-    for G in test_utils.small_groups(range(1, options.maximum_order + 1)):
+  parser.add_option('-g', '--minimal-generators', dest='minimal_generators',
+                    action="store_true", help='output minimal generators',
+                    default=True)
+  
+  parser.add_option("-n", "--maximum-n", dest='maximum_n',
+                    help='maximum n', default=10, type='int')
+  
+  # the generator used to make the groups
+  parser.add_option("-t", "--group-type", dest="group_type",
+                    help='group type', default='small_groups', type='string')
+
+  options, args = parser.parse_args()
+  
+  # output atlasrep groups 
+  if options.group_type == 'atlasrep':
+    test_utils.atlasrep_groups(options.maximum_n)
+    return 0
+
+  # otherwise output call a generator
+  generator_method = getattr(test_utils, options.group_type)
+  for G in generator_method(xrange(1, options.maximum_n)):
+    if options.minimal_generators:
       try:
         minimal_gens = G.MinimalGeneratingSet()
       except:
@@ -48,7 +59,7 @@ def main():
       else:  
         for gen in minimal_gens:
           print test_utils.gap_gen_to_string(gen)
-        
+          
       print
         
 if __name__ == "__main__":
