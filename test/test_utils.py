@@ -121,7 +121,7 @@ def atlasrep_groups(n):
                        'because it is not within [%d, %d]\n' %
                        (min_degree, max_degree))
       continue
-    
+      g
     sys.stderr.write('working on %s with degree %d\n' % (group_name, degree))
     
     generator_record = gap.AtlasGenerators('"%s"' % group_name, index)

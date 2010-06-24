@@ -18,7 +18,8 @@ def main():
       if os.path.splitext(src_file)[1] in ['.cc', '.h']:
         cmd = [sys.executable, cpplint]
         # ignore the complaaint about using "long long int"
-        if src_file.startswith('FundamentalSchreierTrees'):
+        if src_file.startswith('FundamentalSchreierTrees') or \
+           src_file.startswith('SchreierSims_unittest'):
           cmd.append('--filter=-runtime/int')
         cmd.append(os.path.join(root, src_dir, src_file))
 
