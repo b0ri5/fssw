@@ -38,7 +38,7 @@ for config in configs.split(','):
   
   # build the fssw library
   config_env.SConscript('src/SConscript',
-          build_dir='build/%s/src' % (config), duplicate=0)
+          variant_dir='build/%s/src' % (config), duplicate=0)
   
   config_env['GTEST_LIB'] = ''
   config_env['GTEST_INCLUDE'] = ''
@@ -56,6 +56,6 @@ for config in configs.split(','):
   if has_gtest:
     Export('libgtest')
     config_env.SConscript('test/SConscript',
-          build_dir='build/%s/test' % (config), duplicate=0)
+          variant_dir='build/%s/test' % (config), duplicate=0)
     has_gtest = False # falsify this for future configs that might need it
 
