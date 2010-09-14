@@ -11,15 +11,15 @@ env = Environment(tools = ['default', 'packaging', 'boris_scons_tools'])
 # begin checks
 conf = Configure(env, checks.all_checks)
 
-# check for gtest
-has_gtest = conf.CheckLibWithHeader('gtest', 'gtest/gtest.h', 'C++', autoadd=0)
+# check for make
+env['HAS_MAKE'] = conf.CheckCommand('make --version')
 
-# only check for cmake if needed
-if not has_gtest:
-  print '  gtest not installed, will try to use local copy'
-  has_cmake = conf.CheckExecutable('cmake')
-  if not has_cmake:
-    print '  cmake not found, download it at http://www.cmake.org/'
+# check for cmake
+env['HAS_CMAKE'] = conf.CheckCommand('cmake')
+
+if not env['HAS_CMAKE']:
+  print '  cmake not found (required for building tests), ',
+  print 'download it at http://www.cmake.org'
 
 env = conf.Finish()  # get our environment back!
 
@@ -40,22 +40,11 @@ for config in configs.split(','):
   config_env.SConscript('src/SConscript',
           variant_dir='build/%s/src' % (config), duplicate=0)
   
-  config_env['GTEST_LIB'] = ''
-  config_env['GTEST_INCLUDE'] = ''
-  libgtest = None
-
-  if not has_gtest and has_cmake:
-    # build the copy of gtest in third-party
-    
-    config_env['GTEST_INCLUDE'] = '#/third-party/gtest-1.5.0/include'
-    # the SConscript will set GTEST_LIB appropriately
-    config_env.SConscript('third-party/SConscript')
-    Import('libgtest')
-    has_gtest = True
- 
-  if has_gtest:
-    Export('libgtest')
-    config_env.SConscript('test/SConscript',
-          variant_dir='build/%s/test' % (config), duplicate=0)
-    has_gtest = False # falsify this for future configs that might need it
-
+  # build the copy of gtest in third-party
+  config_env['GTEST_INCLUDE'] = '#/third-party/gtest-1.5.0/include'
+  # the SConscript will set GTEST_LIB appropriately
+  config_env.SConscript('third-party/SConscript')
+  Import('libgtest')
+  
+  config_env.SConscript('test/SConscript',
+                        variant_dir='build/%s/test' % (config), duplicate=0)
