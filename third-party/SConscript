@@ -2,17 +2,48 @@ import os
 
 Import('env')
 
-cmake_rv = env.CMake('gtest-build', 'gtest-1.5.0')
-libgtest = env.CMakeLib(['gtest', 'gtest_main'], 'gtest-build')
-env.Depends(libgtest, cmake_rv)
+### gtest ###
+
+def build_gtest(env, source):
+  cmake_files = env.Command('gtest-build/cmake_install.cmake',
+                            '%s/CMakeLists.txt' % (source),
+                            'cmake  -D CMAKE_BUILD_TYPE=%s ../%s' % (env['CONFIGURATION'], source),
+                            chdir='third-party/gtest-build')
+  cmake_libs = ['gtest-build/libgtest.a',
+                'gtest-build/libgtest_main.a']
+  
+  return env.Command(cmake_libs, cmake_files,
+                     'cmake --build gtest-build --config %s' % env['CONFIGURATION'],
+                     chdir='third-party')
+
+env.AddMethod(build_gtest, 'BuildGtest')
+libgtest = env.BuildGtest('gtest-1.5.0')
 
 env['GTEST_LIB'] = os.path.join('#', 'third-party', str(libgtest[0].dir))
 
 # just in case gtest was built with pthreads and we need to link with "pthread"
 conf = Configure(env)
-
 conf.CheckLib('pthread', language='C++', autoadd=1)  
-
 env = conf.Finish()
 
 Export('libgtest')
+
+
+### gflags ###
+
+def build_gflags(env, source):
+  if env['HAS_MAKE']:
+    makefile = env.Command('%s/Makefile' % (source),
+                           '%s/configure' % (source),
+                           './configure --enable-shared=no',
+                           chdir='third-party/%s' % (source))
+    libgflags = env.Command('%s/.libs/libgflags.a' % (source),
+                            makefile,
+                            'make',
+                            chdir='third-party/%s' % (source))
+    
+    return libgflags
+  
+env.AddMethod(build_gflags, 'BuildGflags')
+libgflags = env.BuildGflags('gflags-1.3')
+Export('libgflags')

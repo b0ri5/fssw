@@ -11,7 +11,7 @@ from SCons.Script import *
 """
 def cmake_emitter(target, source, env):
   target_dir = target[0]
-   
+
   # need to remove the source-tree directory to avoid a circular dependency
   new_targets = []
   

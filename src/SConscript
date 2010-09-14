@@ -14,7 +14,7 @@ for f in env.Glob('*.cc'):
 objs = env.Object(list(srcs), CPPPATH=['#include'])
 
 lib_name = 'fssw%s' % (libsuffix)
-lib = env.StaticLibrary('#/lib/%s' % (lib_name), [objs] )
+lib = env.StaticLibrary('#/lib/%s' % (lib_name), [objs])
 env.Alias('lib' + lib_name, lib)
 
 Export('lib_name', 'lib')

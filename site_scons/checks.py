@@ -116,13 +116,13 @@ def CheckMPICXX(context, mpi_cxx):
 
 mpi_checks = { 'CheckMPICXX': CheckMPICXX }
 
-def CheckExecutable(context, exe):
-    context.Message('Checking for %s ... ' % (exe))
-    rv = context.TryAction(exe)[0]
-    context.Result(rv)
-    return rv
+def CheckCommand(context, cmd):
+  context.Message('Checking for %s ... ' % (cmd.split()[0]))
+  rv = context.TryAction(cmd)[0]
+  context.Result(rv)
+  return rv
    
-all_checks.update({ 'CheckExecutable': CheckExecutable} )
+all_checks.update({ 'CheckCommand': CheckCommand} )
 
 """
   Personal configure things to always make sure they are enabled.
