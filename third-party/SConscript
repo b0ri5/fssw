@@ -1,23 +1,34 @@
 import os
 
-Import('env')
+Import('env libsuffix')
+
 
 ### gtest ###
 
 def build_gtest(env, source):
+  if env['CC'] == 'cl':
+    return [File('lib/gtest' + libsuffix + '.lib'),
+            File('lib/gtest_main' + libsuffix + '.lib')]
+    
   cmake_files = env.Command('gtest-build/cmake_install.cmake',
                             '%s/CMakeLists.txt' % (source),
-                            'cmake  -D CMAKE_BUILD_TYPE=%s ../%s' % (env['CONFIGURATION'], source),
+                            'cmake -D CMAKE_BUILD_TYPE=%s ../%s' % (env['CONFIGURATION'], source),
                             chdir='third-party/gtest-build')
-  cmake_libs = ['gtest-build/libgtest.a',
-                'gtest-build/libgtest_main.a']
-  
-  return env.Command(cmake_libs, cmake_files,
-                     'cmake --build gtest-build --config %s' % env['CONFIGURATION'],
+  cmake_libs = []
+  for lib in ['gtest', 'gtest_main']:
+    cmake_libs.append(os.path.join(build_dir,
+                                   env['LIBPREFIX'] + lib + env['LIBSUFFIX']))
+ 
+  env.Command(cmake_libs, cmake_files,
+                     'cmake --build gtest-build --config ' + env['CONFIGURATION'],
                      chdir='third-party')
+
+  return env.Install('lib', cmake_libs)
 
 env.AddMethod(build_gtest, 'BuildGtest')
 libgtest = env.BuildGtest('gtest-1.5.0')
+
+gtest_subdir = '.'
 
 env['GTEST_LIB'] = os.path.join('#', 'third-party', str(libgtest[0].dir))
 
@@ -25,25 +36,30 @@ env['GTEST_LIB'] = os.path.join('#', 'third-party', str(libgtest[0].dir))
 conf = Configure(env)
 conf.CheckLib('pthread', language='C++', autoadd=1)  
 env = conf.Finish()
-
+ 
 Export('libgtest')
-
+ 
 
 ### gflags ###
 
 def build_gflags(env, source):
-  if env['HAS_MAKE']:
-    makefile = env.Command('%s/Makefile' % (source),
-                           '%s/configure' % (source),
-                           './configure --enable-shared=no',
-                           chdir='third-party/%s' % (source))
-    libgflags = env.Command('%s/.libs/libgflags.a' % (source),
-                            makefile,
-                            'make',
-                            chdir='third-party/%s' % (source))
-    
-    return libgflags
+  if env['CC'] == 'cl':
+    return [File('lib/gflags' + libsuffix + '.lib')]
   
+  makefile = env.Command('%s/Makefile' % (source),
+                         '%s/configure' % (source),
+                         './configure --enable-shared=no',
+                         chdir='third-party/%s' % (source))
+  libgflags = env.Command('%s/.libs/libgflags.a' % (source),
+                          makefile,
+                          'make',
+                          chdir='third-party/%s' % (source))
+  
+  return libgflags
+
 env.AddMethod(build_gflags, 'BuildGflags')
 libgflags = env.BuildGflags('gflags-1.3')
+
+env['GTEST_LIB'] = os.path.join('#', 'third-party', str(libgflags[0].dir))
+
 Export('libgflags')
