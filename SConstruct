@@ -17,7 +17,7 @@ env['HAS_MAKE'] = conf.CheckCommand('make --version')
 # check for cmake
 env['HAS_CMAKE'] = conf.CheckCommand('cmake')
 
-if not env['HAS_CMAKE']:
+if not env['HAS_CMAKE'] and env['CC'] == 'cl':
   print '  cmake not found (required for building tests), ',
   print 'download it at http://www.cmake.org'
 
@@ -26,7 +26,7 @@ env = conf.Finish()  # get our environment back!
 # set up for using multiple configurations, using debug as the default
 configs = ARGUMENTS.get('config', 'debug') 
 config_libsuffixes = {'debug': '-db', 'release': '', 'profile': '-prof'}
-
+ 
 for config in configs.split(','):
   print '***Building for %s***' % (config)
   config_env = checks.config(env, config)
