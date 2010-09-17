@@ -13,7 +13,7 @@ for f in env.Glob('*.cc'):
 # compile them into object files
 objs = env.Object(list(srcs), CPPPATH=['#include'])
 
-lib_name = 'fssw%s' % (libsuffix)
+lib_name = 'fssw%s' % (config_suffix)
 lib = env.StaticLibrary('#/lib/%s' % (lib_name), [objs])
 env.Alias('lib' + lib_name, lib)
 

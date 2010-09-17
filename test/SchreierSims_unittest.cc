@@ -13,6 +13,7 @@
 #include <fssw/FundamentalSchreierTrees.h>
 
 #include <gtest/gtest.h>
+#include <gflags/gflags.h>
 
 #include <fssw/PermutationWord.h>
 #include <fssw/SchreierTree.h>
@@ -25,6 +26,10 @@ using std::stringstream;
 using std::ifstream;
 using std::string;
 using std::getline;
+
+// gflags flags
+DEFINE_int64(max_order, -1,
+  "The maximum order of the groups considered");
 
 namespace fssw {
 
@@ -41,7 +46,7 @@ class SchreierSimsTest : public ::testing::Test {
   }
 
   void verify_datafile(string filename,
-      int max_count = -1, int max_order = -1) {
+      int max_count = -1) {
     ifstream in(filename.c_str());
 
     if (in.fail()) {
@@ -103,26 +108,26 @@ class SchreierSimsTest : public ::testing::Test {
       }
 
       // quit if we've reached too high of an order
-      if (max_order >= 0 && order > max_order) {
+      if (FLAGS_max_order >= 0 && order > FLAGS_max_order) {
         line = "";
       }
     }
   }
 };
 
-// can specify via --gtest_filter=*SmallGroups100*
-TEST_F(SchreierSimsTest, SmallGroups100) {
-  verify_datafile("test/data/small_groups_minimum_generators_200.txt", -1, 100);
-}
-
-// can specify via --gtest_filter=*SmallGroupsAll*
 TEST_F(SchreierSimsTest, SmallGroupsAll) {
   verify_datafile("test/data/small_groups_minimum_generators_200.txt");
 }
 
-// can specify via --gtest_filter=*Atlasrep10000*
 TEST_F(SchreierSimsTest, Atlasrep10000) {
   verify_datafile("test/data/atlasrep_10000.txt");
 }
 
 }  // namespace fssw
+
+int main(int argc, char **argv) {
+  ::testing::InitGoogleTest(&argc, argv);
+  google::ParseCommandLineFlags(&argc, &argv, true);
+
+  return RUN_ALL_TESTS();
+}
