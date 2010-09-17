@@ -1,12 +1,13 @@
 import os
 
-Import('env lib lib_name libsuffix libgtest')
+Import('env lib lib_name config_suffix libgtest')
 
 # get a list of source files
 unittest_src = set()
 
 CPPPATH = ['#include']
 CPPPATH.append(env['GTEST_INCLUDE'])
+CPPPATH.append(env['GFLAGS_INCLUDE'])
   
 LIBPATH = ['#/lib']
 LIBPATH.append('#/third-party/lib')
@@ -15,9 +16,9 @@ prev_LIBS = env['LIBS']
 LIBS = []
 LIBS.extend(prev_LIBS)
 LIBS.extend([lib_name,
-             'gtest' + libsuffix,
-             'gtest_main' + libsuffix,
-             'gflags' + libsuffix])
+             'gtest' + config_suffix,
+             'gtest_main' + config_suffix,
+             'gflags' + config_suffix])
 
 for f in env.Glob('*.cc'):
   path, file = os.path.split(str(f) )
@@ -27,7 +28,7 @@ for f in env.Glob('*.cc'):
               CPPPATH=CPPPATH,
 						  LIBPATH=LIBPATH,
               LIBS=LIBS)
-  unittest_name = '%s%s%s' % (name, libsuffix, env['PROGSUFFIX'])
+  unittest_name = '%s%s%s' % (name, config_suffix, env['PROGSUFFIX'])
   
   depends = [lib]
   

@@ -25,26 +25,25 @@ env = conf.Finish()  # get our environment back!
 
 # set up for using multiple configurations, using debug as the default
 configs = ARGUMENTS.get('config', 'debug') 
-config_libsuffixes = {'debug': '-db', 'release': '', 'profile': '-prof'}
+config_config_suffixes = {'debug': '-db', 'release': '', 'profile': '-prof'}
  
 for config in configs.split(','):
   print '***Building for %s***' % (config)
   config_env = checks.config(env, config)
-  libsuffix = config_libsuffixes[config]
+  config_suffix = config_config_suffixes[config]
   config_env['CONFIGURATION'] = config
   
-  # export the environment and libsuffix to the SConscripts
-  Export({'env': config_env, 'libsuffix': libsuffix})
+  # export the environment and config_suffix to the SConscripts
+  Export({'env': config_env, 'config_suffix': config_suffix})
   
   # build the fssw library
   config_env.SConscript('src/SConscript',
           variant_dir='build/%s/src' % (config), duplicate=0)
   
-  # build the copy of gtest in third-party
+  # build the third-party tools
   config_env['GTEST_INCLUDE'] = '#/third-party/gtest-1.5.0/include'
-  # the SConscript will set GTEST_LIB appropriately
+  config_env['GFLAGS_INCLUDE'] = '#/third-party/gflags-1.3/src'
   config_env.SConscript('third-party/SConscript')
-  Import('libgtest')
   
   config_env.SConscript('test/SConscript',
                         variant_dir='build/%s/test' % (config), duplicate=0)
