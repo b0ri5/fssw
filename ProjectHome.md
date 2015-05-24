@@ -1,0 +1,1 @@
+This project will provide a fast, portable C++ implementation of the schreier-sims algorithm. It is still in its infancy.
